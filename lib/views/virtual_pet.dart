@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../core/app_colors.dart';
-import '../widgets/mipo_octopus.dart';
 import '../widgets/tap_scale.dart';
 
 // ============================================================================
@@ -208,18 +207,18 @@ class _VirtualPetViewState extends State<VirtualPetView> {
     return _urgencyOf(nearest.deadline);
   }
 
-  PetMood get _mood {
-    if (_celebration != null) return PetMood.happy;
+  String get _petGif {
+    if (_celebration != null) return 'assets/images/mipo_biru.gif';
     switch (_mostUrgent) {
       case null:
-        return PetMood.happy;
-      case _Urgency.panic:
-        return PetMood.panic;
-      case _Urgency.worry:
-        return PetMood.worried;
-      case _Urgency.alert:
       case _Urgency.calm:
-        return PetMood.calm;
+        return 'assets/images/mipo_biru.gif';
+      case _Urgency.alert:
+        return 'assets/images/mipo_kuning.gif';
+      case _Urgency.worry:
+        return 'assets/images/mipo_oranye.gif';
+      case _Urgency.panic:
+        return 'assets/images/mipo_merah.gif';
     }
   }
 
@@ -447,7 +446,12 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       height: height,
       child: Column(
         children: [
-          MipoOctopus(size: 156, interactive: true, mood: _mood),
+          Image.asset(
+            _petGif,
+            width: 156,
+            height: 156,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 14),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),

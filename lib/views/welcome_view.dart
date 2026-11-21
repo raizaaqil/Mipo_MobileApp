@@ -1,4 +1,3 @@
-import '../widgets/mipo_octopus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_palette.dart';
@@ -28,22 +27,30 @@ class WelcomeView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FadeSlideIn(
-                      child: MipoOctopus(size: 170),
-                        ),
-                      const SizedBox(height: 12),
-                      FadeSlideIn(
-                        delay: const Duration(milliseconds: 100),
-                        child: Image.asset(
-                          'assets/images/logo_mipo.png',
-                          height:150,
-                          errorBuilder: (_, __, ___) => Text(
-                            'MiPo',
-                            style: TextStyle(
-                              fontSize: 42,
-                              fontWeight: FontWeight.w900,
-                              color: p.accent,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/mipo_biru.gif',
+                              width: 110, // Ukuran disesuaikan agar proporsional sejajar
+                              height: 110,
+                              fit: BoxFit.contain,
                             ),
-                          ),
+                            const SizedBox(width: 12), // Jarak antara karakter dan tulisan
+                            Image.asset(
+                              'assets/images/logo_mipo.png',
+                              height: 95, // Ukuran disesuaikan agar sejajar dengan karakter
+                              errorBuilder: (_, __, ___) => Text(
+                                'MiPo',
+                                style: TextStyle(
+                                  fontSize: 42,
+                                  fontWeight: FontWeight.w900,
+                                  color: p.accent,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 24),

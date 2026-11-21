@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/app_sidebar.dart';
-import '../widgets/mipo_octopus.dart';
 import '../widgets/tap_scale.dart';
 import 'calendar_view.dart';
 import 'file_view.dart';
@@ -80,7 +79,7 @@ TextStyle _text(
 
 const _softBorder = Color(0xFFE3F1FF);
 
-List<BoxShadow> _blueShadow({double blur = 8, double dy = 2, double alpha = 0.2}) {
+List<BoxShadow> _blueShadow({double blur = 8, double dy = 2, double alpha = 0.45}) {
   return [
     BoxShadow(
       color: AppColors.sekunder.withValues(alpha: alpha),
@@ -181,7 +180,7 @@ class _HomeViewState extends State<HomeView> {
 
     // Tinggi area Mipo dibuat tetap, supaya tinggi panel di bawahnya
     // bisa dihitung pasti (sisa layar).
-    final petHeight = media.padding.top + 300;
+    final petHeight = media.padding.top + 310;
     final panelMinHeight =
         media.size.height > petHeight ? media.size.height - petHeight : 0.0;
 
@@ -244,8 +243,7 @@ class _HomeViewState extends State<HomeView> {
                   color: Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
-                  boxShadow: _blueShadow(),
-                ),
+                  boxShadow: _blueShadow(blur: 4, dy: 1, alpha: 0.2),                ),
                 child: const Icon(Icons.menu_rounded, color: AppColors.tersier, size: 24),
               ),
             ),
@@ -343,34 +341,52 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildPetSection(double height, double topInset, List<_Entry> tasks) {
+    String _petGif(List<_Entry> tasks) {
+        if (tasks.isEmpty) return 'assets/images/mipo_biru.gif';
+        switch (_urgencyOf(tasks.first.deadline)) {
+          case _Urgency.panic:
+            return 'assets/images/mipo_merah.gif';
+          case _Urgency.worry:
+            return 'assets/images/mipo_oranye.gif';
+          case _Urgency.alert:
+            return 'assets/images/mipo_kuning.gif';
+          case _Urgency.calm:
+            return 'assets/images/mipo_biru.gif';
+        }
+      }
+
     return SizedBox(
       height: height,
       child: Padding(
         // 46 (tinggi header) + 8 + 8 = ruang agar pet tidak tertutup header
         padding: EdgeInsets.only(top: topInset + 70),
         child: Column(
-        children: [
-          TapScale(
-            pressedScale: 0.96,
-            onTap: () => _go(const VirtualPetView()),
-            child: const MipoOctopus(size: 124, interactive: false),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 32),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: _softBorder, width: 1.2),
+          children: [
+            TapScale(
+              pressedScale: 0.96,
+              onTap: () => _go(const VirtualPetView()),
+              child: Image.asset(_petGif(tasks), // <-- GIF ditaruh di sini (menggantikan MipoOctopus)
+                width: 165,
+                height: 165,
+                fit: BoxFit.contain,
+              ),
             ),
-            child: Text(
-              _petMessage(tasks),
-              textAlign: TextAlign.center,
-              style: _text(12.5, weight: FontWeight.w600),
+            const SizedBox(height: 28),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: _softBorder, width: 1.2),
+              ),
+              child: Text(
+                _petMessage(tasks), // <-- Teks kalimat Mipo tetap pakai _petMessage
+                textAlign: TextAlign.center,
+                style: _text(12.5, weight: FontWeight.w600),
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -393,7 +409,7 @@ class _HomeViewState extends State<HomeView> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: _blueShadow(blur: 24, dy: -6, alpha: 0.55),
+        boxShadow: _blueShadow(blur: 14, dy: -3, alpha: 0.3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -538,11 +554,10 @@ class _HomeViewState extends State<HomeView> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 224, 241, 255).withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _softBorder, width: 1.2),
-        boxShadow: _blueShadow(blur: 18, dy: 5),
-      ),
+        boxShadow: _blueShadow(blur: 4, dy: 1, alpha: 0.2),      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

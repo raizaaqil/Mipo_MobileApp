@@ -80,7 +80,7 @@ TextStyle _text(
 
 const _softBorder = Color(0xFFE3F1FF);
 
-List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.45}) {
+List<BoxShadow> _blueShadow({double blur = 8, double dy = 2, double alpha = 0.2}) {
   return [
     BoxShadow(
       color: AppColors.sekunder.withValues(alpha: alpha),
@@ -187,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primer,
       drawerScrimColor: Colors.black.withValues(alpha: 0.35),
       drawer: const AppSidebar(),
       body: Stack(

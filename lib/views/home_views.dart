@@ -194,17 +194,20 @@ class _HomeViewState extends State<HomeView> {
           SingleChildScrollView(
             controller: _scroll,
             physics: const BouncingScrollPhysics(),
-            child: Column(
+            child: Stack(
               children: [
+                // 1. Lapisan bawah: Wallpaper + gurita
                 _buildPetSection(petHeight, media.padding.top, tasks),
-                // Panel utama minimal setinggi sisa layar, jadi selalu
-                // memanjang sampai ujung bawah.
-                _buildMainPanel(
-                  media.padding.bottom,
-                  panelMinHeight,
-                  schedules,
-                  tasks,
-                  marked,
+                // 2. Lapisan atas: Panel putih ditaruh tepat di posisi petHeight (menutup 32px bawah wallpaper)
+                Padding(
+                  padding: EdgeInsets.only(top: petHeight),
+                  child: _buildMainPanel(
+                    media.padding.bottom,
+                    panelMinHeight,
+                    schedules,
+                    tasks,
+                    marked,
+                  ),
                 ),
               ],
             ),
@@ -342,20 +345,29 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildPetSection(double height, double topInset, List<_Entry> tasks) {
     String _petGif(List<_Entry> tasks) {
-        if (tasks.isEmpty) return 'assets/images/mipo_biru.gif';
-        switch (_urgencyOf(tasks.first.deadline)) {
-          case _Urgency.panic:
-            return 'assets/images/mipo_merah.gif';
-          case _Urgency.worry:
-            return 'assets/images/mipo_oranye.gif';
-          case _Urgency.alert:
-            return 'assets/images/mipo_kuning.gif';
-          case _Urgency.calm:
-            return 'assets/images/mipo_biru.gif';
-        }
+      if (tasks.isEmpty) return 'assets/images/mipo_biru.gif';
+      switch (_urgencyOf(tasks.first.deadline)) {
+        case _Urgency.panic:
+          return 'assets/images/mipo_merah.gif';
+        case _Urgency.worry:
+          return 'assets/images/mipo_oranye.gif';
+        case _Urgency.alert:
+          return 'assets/images/mipo_kuning.gif';
+        case _Urgency.calm:
+          return 'assets/images/mipo_biru.gif';
       }
-    return SizedBox(
-      height: height,
+    }
+
+    return Container(
+      width: double.infinity,
+      height: height + 32, // Tambah 32px agar wallpaper masuk ke belakang lengkungan kalender
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/bg_home.png'), // <-- Ganti sesuai nama file PNG kamu
+          fit: BoxFit.cover, // Mengisi penuh area atas tanpa gepeng
+          alignment: Alignment.topCenter,
+        ),
+      ),
       child: Padding(
         padding: EdgeInsets.only(top: topInset + 88),
         child: Column(
@@ -363,7 +375,8 @@ class _HomeViewState extends State<HomeView> {
             TapScale(
               pressedScale: 0.96,
               onTap: () => _go(const VirtualPetView()),
-              child: Image.asset(_petGif(tasks), // <-- GIF ditaruh di sini (menggantikan MipoOctopus)
+              child: Image.asset(
+                _petGif(tasks),
                 width: 165,
                 height: 165,
                 fit: BoxFit.contain,
@@ -379,7 +392,7 @@ class _HomeViewState extends State<HomeView> {
                 border: Border.all(color: _softBorder, width: 1.2),
               ),
               child: Text(
-                _petMessage(tasks), // <-- Teks kalimat Mipo tetap pakai _petMessage
+                _petMessage(tasks),
                 textAlign: TextAlign.center,
                 style: _text(12.5, weight: FontWeight.w600),
               ),

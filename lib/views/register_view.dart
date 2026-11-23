@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../core/app_palette.dart';
+import '../core/app_colors.dart';
 import '../core/app_strings.dart';
 import '../core/validators.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/mipo_ui.dart';
-import '../widgets/panel_scaffold.dart';
+import '../widgets/auth_ui.dart';
 import '../widgets/tap_scale.dart';
 import 'login_view.dart';
 
@@ -91,54 +90,40 @@ class _RegisterAccountViewState extends State<RegisterAccountView> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    Widget field(int i, Widget child) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: FadeSlideIn(
-            delay: Duration(milliseconds: 60 * i),
-            child: child,
-          ),
-        );
+    Widget field(Widget child) =>
+        Padding(padding: const EdgeInsets.only(bottom: 14), child: child);
 
-    return PanelScaffold(
-      title: context.tr('register'),
-      child: Column(
-        children: [
-          field(
-            0,
-            MipoTextField(
+    return AuthScaffold(
+      child: AuthCard(
+        title: context.tr('register'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            field(AuthTextField(
               label: context.tr('email'),
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               errorText: _err('email'),
               onChanged: (_) => _clear('email'),
-            ),
-          ),
-          field(
-            1,
-            MipoTextField(
+            )),
+            field(AuthTextField(
               label: context.tr('password'),
               controller: _pass,
               obscure: true,
               textInputAction: TextInputAction.next,
               errorText: _err('pass'),
               onChanged: (_) => _clear('pass'),
-            ),
-          ),
-          field(
-            2,
-            MipoTextField(
+            )),
+            field(AuthTextField(
               label: context.tr('name'),
               controller: _name,
               textInputAction: TextInputAction.next,
               errorText: _err('name'),
               onChanged: (_) => _clear('name'),
-            ),
-          ),
-          field(
-            3,
-            MipoTextField(
+            )),
+            field(AuthTextField(
               label: context.tr('age'),
               controller: _age,
               keyboardType: TextInputType.number,
@@ -147,50 +132,27 @@ class _RegisterAccountViewState extends State<RegisterAccountView> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               errorText: _err('age'),
               onChanged: (_) => _clear('age'),
-            ),
-          ),
-          field(
-            4,
-            MipoTextField(
+            )),
+            field(AuthTextField(
               label: context.tr('education'),
               controller: _edu,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _next(),
               errorText: _err('edu'),
               onChanged: (_) => _clear('edu'),
-            ),
-          ),
-          const SizedBox(height: 6),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 360),
-            child: MipoButton(label: context.tr('next'), onPressed: _next),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(context.tr('have_account'),
-                  style: TextStyle(color: p.textMuted, fontSize: 13)),
-              TapScale(
-                onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginView()),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    context.tr('login'),
-                    style: TextStyle(
-                      color: p.accent,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
+            )),
+            const SizedBox(height: 4),
+            AuthButton(label: context.tr('next'), onPressed: _next),
+            const SizedBox(height: 6),
+            AuthLinkRow(
+              text: context.tr('have_account'),
+              action: context.tr('login'),
+              onTap: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginView()),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -239,28 +201,23 @@ class _RegisterPetViewState extends State<RegisterPetView> {
     if (!mounted) return;
 
     if (result.needsEmailConfirm) {
-      await showMipoDialog<void>(
+      await showAuthDialog<void>(
         context,
-        builder: (ctx) => MipoDialogCard(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                ctx.trNow('confirm_email_info'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: ctx.palette.text,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 20),
-              MipoButton(
-                label: ctx.trNow('ok'),
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ],
-          ),
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              ctx.trNow('confirm_email_info'),
+              textAlign: TextAlign.center,
+              style: authText(14, weight: FontWeight.w700).copyWith(height: 1.4),
+            ),
+            const SizedBox(height: 20),
+            AuthButton(
+              label: ctx.trNow('ok'),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
         ),
       );
       if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
@@ -278,34 +235,37 @@ class _RegisterPetViewState extends State<RegisterPetView> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    return PanelScaffold(
-      title: context.tr('pet_profile'),
-      child: Column(
-        children: [
-          FadeSlideIn(
-            child: Floating(
-              child: Image.asset(
-                'assets/images/mipo_kuning.png',
-                height: 130,
-                errorBuilder: (_, __, ___) =>
-                    Icon(Icons.bubble_chart_rounded, size: 100, color: p.accent),
-              ),
-            ),
+    return AuthScaffold(
+      // Mipo di latar biru, sama seperti tata letak Home.
+      header: TapScale(
+        pressedScale: 0.96,
+        onTap: () {},
+        child: Image.asset(
+          'assets/images/mipo_kuning.png',
+          height: 130,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.bubble_chart_rounded,
+            size: 100,
+            color: Colors.white,
           ),
-          const SizedBox(height: 12),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 80),
-            child: Text(
+        ),
+      ),
+      child: AuthCard(
+        title: context.tr('pet_profile'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
               context.tr('pet_hint'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: p.textMuted, fontSize: 14),
+              style: authText(
+                13,
+                color: AppColors.textDark.withValues(alpha: 0.6),
+              ).copyWith(height: 1.4),
             ),
-          ),
-          const SizedBox(height: 20),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 140),
-            child: MipoTextField(
+            const SizedBox(height: 18),
+            AuthTextField(
               label: context.tr('pet_name'),
               controller: _petName,
               textInputAction: TextInputAction.done,
@@ -315,18 +275,15 @@ class _RegisterPetViewState extends State<RegisterPetView> {
                 if (_petErr != null) setState(() => _petErr = null);
               },
             ),
-          ),
-          const SizedBox(height: 20),
-          ErrorBanner(errorKey: _serverErr),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 200),
-            child: MipoButton(
+            const SizedBox(height: 18),
+            ErrorBanner(errorKey: _serverErr),
+            AuthButton(
               label: context.tr('register'),
               loading: _loading,
               onPressed: _submit,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

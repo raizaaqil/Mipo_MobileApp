@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
-import '../core/app_palette.dart';
 import '../core/app_strings.dart';
 import '../core/validators.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/mipo_ui.dart';
-import '../widgets/panel_scaffold.dart';
-import '../widgets/tap_scale.dart';
+import '../widgets/auth_ui.dart';
+import '../widgets/mipo_ui.dart' show showMipoSnack;
 import 'register_view.dart';
 
 /// Kotak pesan error dari server (muncul dengan animasi).
@@ -19,26 +17,25 @@ class ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 220),
+      curve: Curves.easeInOutCubic,
       alignment: Alignment.topCenter,
       child: errorKey == null
           ? const SizedBox(width: double.infinity)
           : Container(
               width: double.infinity,
               margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.urgencyPanic.withValues(alpha: 0.15),
+                color: AppColors.urgencyPanic.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                    color: AppColors.urgencyPanic.withValues(alpha: 0.6)),
+                  color: AppColors.urgencyPanic.withValues(alpha: 0.5),
+                  width: 1.2,
+                ),
               ),
               child: Text(
                 context.tr(errorKey!),
-                style: TextStyle(
-                  color: context.palette.text,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: authText(12.5, weight: FontWeight.w600),
               ),
             ),
     );
@@ -95,13 +92,14 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    return PanelScaffold(
-      title: context.tr('login'),
-      child: Column(
-        children: [
-          FadeSlideIn(
-            child: MipoTextField(
+    return AuthScaffold(
+      child: AuthCard(
+        title: context.tr('login'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AuthTextField(
               label: context.tr('email'),
               controller: _email,
               keyboardType: TextInputType.emailAddress,
@@ -111,11 +109,8 @@ class _LoginViewState extends State<LoginView> {
                 if (_emailErr != null) setState(() => _emailErr = null);
               },
             ),
-          ),
-          const SizedBox(height: 16),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 80),
-            child: MipoTextField(
+            const SizedBox(height: 14),
+            AuthTextField(
               label: context.tr('password'),
               controller: _pass,
               obscure: true,
@@ -126,68 +121,31 @@ class _LoginViewState extends State<LoginView> {
                 if (_passErr != null) setState(() => _passErr = null);
               },
             ),
-          ),
-          const SizedBox(height: 20),
-          ErrorBanner(errorKey: _serverErr),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 160),
-            child: MipoButton(
+            const SizedBox(height: 18),
+            ErrorBanner(errorKey: _serverErr),
+            AuthButton(
               label: context.tr('login'),
               loading: _loading,
               onPressed: _submit,
             ),
-          ),
-          const SizedBox(height: 8),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 220),
-            child: TapScale(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ForgotPasswordView()),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  context.tr('forgot_password'),
-                  style: TextStyle(
-                    color: p.accent,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
+            const SizedBox(height: 6),
+            Center(
+              child: AuthTextLink(
+                label: context.tr('forgot_password'),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ForgotPasswordView()),
                 ),
               ),
             ),
-          ),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 260),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  context.tr('no_account'),
-                  style: TextStyle(color: p.textMuted, fontSize: 13),
-                ),
-                TapScale(
-                  onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (_) => const RegisterAccountView()),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      context.tr('register'),
-                      style: TextStyle(
-                        color: p.accent,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            AuthLinkRow(
+              text: context.tr('no_account'),
+              action: context.tr('register'),
+              onTap: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const RegisterAccountView()),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -238,41 +196,42 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    return PanelScaffold(
-      title: context.tr('forgot_title'),
-      child: Column(
-        children: [
-          FadeSlideIn(
-            child: Text(
+    return AuthScaffold(
+      child: AuthCard(
+        title: context.tr('forgot_title'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
               context.tr('forgot_hint'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: p.textMuted, fontSize: 14, height: 1.4),
+              style: authText(
+                13,
+                color: AppColors.textDark.withValues(alpha: 0.6),
+              ).copyWith(height: 1.4),
             ),
-          ),
-          const SizedBox(height: 20),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 80),
-            child: MipoTextField(
+            const SizedBox(height: 18),
+            AuthTextField(
               label: context.tr('email'),
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _submit(),
               errorText: _emailErr == null ? null : context.tr(_emailErr!),
+              onChanged: (_) {
+                if (_emailErr != null) setState(() => _emailErr = null);
+              },
             ),
-          ),
-          const SizedBox(height: 20),
-          ErrorBanner(errorKey: _serverErr),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 160),
-            child: MipoButton(
+            const SizedBox(height: 18),
+            ErrorBanner(errorKey: _serverErr),
+            AuthButton(
               label: context.tr('send_link'),
               loading: _loading,
               onPressed: _submit,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

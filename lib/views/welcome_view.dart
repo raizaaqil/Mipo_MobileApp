@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../core/app_palette.dart';
+import '../core/app_colors.dart';
 import '../core/app_strings.dart';
 import '../providers/settings_provider.dart';
-import '../widgets/mipo_ui.dart';
+import '../widgets/auth_ui.dart';
+import '../widgets/mipo_ui.dart' show MipoThemed, LanguageSwitch;
+import '../widgets/tap_scale.dart';
 import 'login_view.dart';
 import 'register_view.dart';
 
@@ -15,121 +17,89 @@ class WelcomeView extends StatelessWidget {
     return MipoThemed(
       child: Builder(
         builder: (context) {
-          final p = context.palette;
           final settings = context.watch<SettingsProvider>();
-          return Scaffold(
-            backgroundColor: p.pageBg,
-            body: SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FadeSlideIn(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/mipo_biru.gif',
-                              width: 110, // Ukuran disesuaikan agar proporsional sejajar
-                              height: 110,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(width: 12), // Jarak antara karakter dan tulisan
-                            Image.asset(
-                              'assets/images/logo_mipo.png',
-                              height: 95, // Ukuran disesuaikan agar sejajar dengan karakter
-                              errorBuilder: (_, __, ___) => Text(
-                                'MiPo',
-                                style: TextStyle(
-                                  fontSize: 42,
-                                  fontWeight: FontWeight.w900,
-                                  color: p.accent,
-                                ),
-                              ),
-                            ),
-                          ],
+          return AuthScaffold(
+            showBack: false,
+            // Mipo tampil langsung di latar biru, seperti di Home.
+            header: TapScale(
+              pressedScale: 0.96,
+              onTap: () {},
+              child: Image.asset(
+                'assets/images/mipo_biru.gif',
+                width: 165,
+                height: 165,
+                fit: BoxFit.contain,
+              ),
+            ),
+            child: AuthCard(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Image.asset(
+                      'assets/images/logo_mipo.png',
+                      height: 56,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Text(
+                        'MiPo',
+                        style: authText(
+                          44,
+                          weight: FontWeight.w800,
+                          color: AppColors.tersier,
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      FadeSlideIn(
-                        delay: const Duration(milliseconds: 200),
-                        child: Text(
-                          context.tr('welcome_headline'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: p.text,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      FadeSlideIn(
-                        delay: const Duration(milliseconds: 280),
-                        child: Text(
-                          context.tr('welcome_tagline'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            height: 1.4,
-                            color: p.textMuted,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      FadeSlideIn(
-                        delay: const Duration(milliseconds: 360),
-                        child: Column(
-                          children: [
-                            Text(
-                              context.tr('choose_language'),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: p.textMuted,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            LanguageSwitch(
-                              value: settings.language,
-                              onChanged: (code) => settings.setLanguage(code),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      FadeSlideIn(
-                        delay: const Duration(milliseconds: 460),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 320),
-                          child: Column(
-                            children: [
-                              MipoButton(
-                                label: context.tr('login'),
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const LoginView()),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              MipoButton(
-                                label: context.tr('register'),
-                                filled: false,
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const RegisterAccountView()),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                     ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Text(
+                    context.tr('welcome_headline'),
+                    textAlign: TextAlign.center,
+                    style: authText(20, weight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.tr('welcome_tagline'),
+                    textAlign: TextAlign.center,
+                    style: authText(
+                      13,
+                      color: AppColors.textDark.withValues(alpha: 0.6),
+                    ).copyWith(height: 1.4),
+                  ),
+                  const SizedBox(height: 22),
+                  Text(
+                    context.tr('choose_language'),
+                    textAlign: TextAlign.center,
+                    style: authText(
+                      12.5,
+                      weight: FontWeight.w700,
+                      color: AppColors.textDark.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: LanguageSwitch(
+                      value: settings.language,
+                      onChanged: (code) => settings.setLanguage(code),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  AuthButton(
+                    label: context.tr('login'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const LoginView()),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  AuthButton(
+                    label: context.tr('register'),
+                    filled: false,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const RegisterAccountView()),
+                    ),
+                  ),
+                ],
               ),
             ),
           );

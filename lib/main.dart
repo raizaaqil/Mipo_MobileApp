@@ -103,11 +103,11 @@ class _LoadingProfileView extends StatelessWidget {
                 children: [
                   Floating(
                     child: Image.asset(
-                      'assets/images/mipo_kuning.png',
+                      'assets/images/logo_mipo.png',
                       height: 110,
                       errorBuilder: (_, __, ___) => Icon(
                           Icons.bubble_chart_rounded,
-                          size: 90,
+                          size: 200,
                           color: p.accent),
                     ),
                   ),

@@ -448,8 +448,8 @@ class _VirtualPetViewState extends State<VirtualPetView> {
         children: [
           Image.asset(
             _petGif,
-            width: 156,
-            height: 156,
+            width: 190,
+            height: 190,
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 14),

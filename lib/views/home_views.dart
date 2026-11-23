@@ -354,12 +354,10 @@ class _HomeViewState extends State<HomeView> {
             return 'assets/images/mipo_biru.gif';
         }
       }
-
     return SizedBox(
       height: height,
       child: Padding(
-        // 46 (tinggi header) + 8 + 8 = ruang agar pet tidak tertutup header
-        padding: EdgeInsets.only(top: topInset + 70),
+        padding: EdgeInsets.only(top: topInset + 88),
         child: Column(
           children: [
             TapScale(
@@ -371,7 +369,7 @@ class _HomeViewState extends State<HomeView> {
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 6),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 32),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),

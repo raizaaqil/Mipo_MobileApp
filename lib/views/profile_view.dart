@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../core/app_palette.dart';
+
+import '../core/app_colors.dart';
 import '../core/app_strings.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/mipo_ui.dart';
-import '../widgets/panel_scaffold.dart';
+import '../widgets/soft_ui.dart';
+import '../widgets/tap_scale.dart';
 import 'setting_view.dart';
 
 /// Profil pengguna dan Pet. Data diambil dari akun yang sedang login.
@@ -13,80 +14,109 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
     final auth = context.watch<AuthProvider>();
-    Widget row(String labelKey, String value) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+
+    Widget row(IconData icon, String labelKey, String value) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: SoftBar(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 120,
-                child: Text(
-                  context.tr(labelKey),
-                  style: TextStyle(
-                      color: p.textMuted,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(icon, size: 19, color: AppColors.tersier),
               ),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  value.isEmpty ? '-' : value,
-                  style: TextStyle(
-                      color: p.text, fontWeight: FontWeight.w700, fontSize: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr(labelKey),
+                      style: softText(
+                        10.5,
+                        color: AppColors.textDark.withValues(alpha: 0.55),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      value.isEmpty ? '-' : value,
+                      style: softText(13, weight: FontWeight.w700),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        );
+        ),
+      );
+    }
 
-    return PanelScaffold(
+    return SoftPage(
       title: context.tr('profile'),
       child: Column(
         children: [
-          FadeSlideIn(
-            child: Floating(
-              child: Image.asset(
-                'assets/images/mipo_kuning.png',
-                height: 120,
-                errorBuilder: (_, __, ___) =>
-                    Icon(Icons.bubble_chart_rounded, size: 90, color: p.accent),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 80),
-            child: Text(
-              auth.petName,
-              style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: p.text),
-            ),
-          ),
-          const SizedBox(height: 20),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 140),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: p.panelSoft,
-                borderRadius: BorderRadius.circular(24),
-              ),
+          SoftFadeIn(
+            child: SoftCard(
+              padding: const EdgeInsets.fromLTRB(18, 22, 18, 20),
               child: Column(
                 children: [
-                  row('name', auth.name),
-                  row('age', auth.age?.toString() ?? ''),
-                  row('email', auth.email),
-                  row('education', auth.education),
+                  TapScale(
+                    pressedScale: 0.94,
+                    onTap: () {},
+                    child: Image.asset(
+                      'assets/images/mipo_biru.gif',
+                      height: 130,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.bubble_chart_rounded,
+                        size: 90,
+                        color: AppColors.tersier,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: softBorder, width: 1.2),
+                    ),
+                    child: Text(
+                      auth.petName,
+                      style: softText(14, weight: FontWeight.w700),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 200),
-            child: MipoButton(
+          const SizedBox(height: 16),
+          SoftFadeIn(
+            delayMs: 80,
+            child: SoftCard(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+              child: Column(
+                children: [
+                  row(Icons.person_outline_rounded, 'name', auth.name),
+                  row(Icons.cake_outlined, 'age', auth.age?.toString() ?? ''),
+                  row(Icons.mail_outline_rounded, 'email', auth.email),
+                  row(Icons.school_outlined, 'education', auth.education),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          SoftFadeIn(
+            delayMs: 140,
+            child: SoftButton(
               label: context.tr('edit'),
               icon: Icons.edit_outlined,
               onPressed: () => Navigator.of(context).push(

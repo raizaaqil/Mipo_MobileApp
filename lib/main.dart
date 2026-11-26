@@ -38,7 +38,9 @@ class MipoApp extends StatelessWidget {
       return MaterialApp(
         title: 'MiPo App',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(Brightness.light),
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: settings.themeMode,
         home: const SetupRequiredView(),
       );
     }
@@ -50,11 +52,17 @@ class MipoApp extends StatelessWidget {
           create: (_) => AuthProvider(settings),
         ),
       ],
-      child: MaterialApp(
-        title: 'MiPo App',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(Brightness.light),
-        home: const AuthGate(),
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProv, _) {
+          return MaterialApp(
+            title: 'MiPo App',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: settingsProv.themeMode,
+            home: const AuthGate(),
+          );
+        },
       ),
     );
   }

@@ -38,6 +38,10 @@ class AppTheme {
     TargetPlatform.iOS: SmoothPageTransitionsBuilder(),
   });
 
+  // Jalan pintas untuk tema terang dan gelap
+  static ThemeData get lightTheme => build(Brightness.light);
+  static ThemeData get darkTheme => build(Brightness.dark);
+
   static ThemeData build(Brightness brightness) {
     final p = brightness == Brightness.dark ? MipoPalette.dark : MipoPalette.light;
     return ThemeData(

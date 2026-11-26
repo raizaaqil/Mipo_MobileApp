@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Pengaturan: bahasa, mode gelap, notifikasi.
-/// Disimpan di perangkat (cepat, dipakai sebelum login) dan di tabel
-/// `profiles` Supabase (permanen per akun, ikut pindah ke perangkat lain).
 class SettingsProvider extends ChangeNotifier {
   static const _kLang = 'settings.language';
   static const _kDark = 'settings.dark_mode';
@@ -18,6 +15,9 @@ class SettingsProvider extends ChangeNotifier {
   String get language => _language;
   bool get darkMode => _darkMode;
   bool get notifications => _notifications;
+
+  // Tambahan getter untuk menghubungkan status darkMode ke MaterialApp
+  ThemeMode get themeMode => _darkMode ? ThemeMode.dark : ThemeMode.light;
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
@@ -79,3 +79,4 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 }
+

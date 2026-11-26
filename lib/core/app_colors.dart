@@ -23,4 +23,9 @@ class AppColors {
   static const Color urgencyWorry = Color(0xFFEBA16F); // khawatir H-3..H-2
   static const Color urgencyPanic = Color(0xFFDF8585); // panik, hari H / lewat
   static const Color doneGrey = Color(0xFFB8BEC8);     // tugas selesai
+
+  // Warna Dark Mode
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E2E);
+  static const Color darkText = Color(0xFFF1F5F9);
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 
 /// Kumpulan warna yang berubah mengikuti mode terang / gelap.
 /// Pakai: `final p = context.palette;` lalu `p.text`, `p.surface`, dst.
@@ -30,13 +29,13 @@ class MipoPalette extends ThemeExtension<MipoPalette> {
   });
 
   static const light = MipoPalette(
-    pageBg: AppColors.pageBg,
+    pageBg: Color(0xFFE8F3FF),
     surface: Color(0xFFFFFFFF),
-    panel: AppColors.btnLight,
-    panelSoft: AppColors.iconBg,
-    accent: AppColors.primaryBlue,
+    panel: Color(0xFFCBE5FF),
+    panelSoft: Color(0xFFD8ECFF),
+    accent: Color(0xFF5B9EE1),
     onAccent: Color(0xFFFFFFFF),
-    text: AppColors.textDark,
+    text: Color(0xFF364A6B),
     textMuted: Color(0xFF6B7F9E),
     fieldFill: Color(0xFFFFFFFF),
     shadow: Color(0x1F000000),

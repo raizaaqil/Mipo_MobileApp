@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/soft_ui.dart';
@@ -13,12 +14,8 @@ class HelpView extends StatefulWidget {
 class _HelpViewState extends State<HelpView> {
   final _search = TextEditingController();
 
-  static const _faq = [
-    'How do I change my profile and account information?',
-    'Page failed to load or a feature is experiencing an error',
-    'How to download or save project data/files',
-    'How do I create or add a new project?',
-  ];
+  static const _faqKeys = ['faq1', 'faq2', 'faq3', 'faq4'];
+  List<String> get _faq => _faqKeys.map((k) => AppStrings.t(k)).toList();
 
   @override
   void dispose() {
@@ -42,7 +39,7 @@ class _HelpViewState extends State<HelpView> {
     final shown = _faq.where((e) => e.toLowerCase().contains(q)).toList();
 
     return SoftPage(
-      title: 'Help & Support',
+      title: AppStrings.t('help_title'),
       child: Column(
         children: [
           SoftFadeIn(
@@ -53,7 +50,7 @@ class _HelpViewState extends State<HelpView> {
                 children: [
                   SoftField(
                     controller: _search,
-                    hint: 'Ask Anything',
+                    hint: AppStrings.t('help_ask'),
                     prefixIcon: Icons.search_rounded,
                     pill: true,
                     onChanged: (_) => setState(() {}),
@@ -63,7 +60,7 @@ class _HelpViewState extends State<HelpView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Text(
-                        'Tidak ada pertanyaan yang cocok.',
+                        AppStrings.t('help_no_match'),
                         textAlign: TextAlign.center,
                         style: softText(12, color: AppColors.textDark.withValues(alpha: 0.5)),
                       ),
@@ -110,21 +107,21 @@ class _HelpViewState extends State<HelpView> {
               child: Column(
                 children: [
                   SoftButton(
-                    label: 'Chat Support',
+                    label: AppStrings.t('help_chat'),
                     icon: Icons.chat_bubble_outline_rounded,
                     onPressed: () => _openForm(
-                      title: 'Chat Support',
-                      successMsg: 'Chat Send',
+                      title: AppStrings.t('help_chat'),
+                      successMsg: AppStrings.t('help_chat_sent'),
                     ),
                   ),
                   const SizedBox(height: 12),
                   SoftButton(
-                    label: 'Send Email',
+                    label: AppStrings.t('help_email'),
                     icon: Icons.mail_outline_rounded,
                     filled: false,
                     onPressed: () => _openForm(
-                      title: 'Send Email',
-                      successMsg: 'Email Send',
+                      title: AppStrings.t('help_email'),
+                      successMsg: AppStrings.t('help_email_sent'),
                     ),
                   ),
                 ],
@@ -176,19 +173,19 @@ class _FormDialogState extends State<_FormDialog> {
         const SizedBox(height: 16),
         SoftField(
           controller: _message,
-          hint: 'Type Here...',
+          hint: AppStrings.t('help_type'),
           minLines: 6,
           maxLines: 8,
           keyboardType: TextInputType.multiline,
-          errorText: _empty ? 'Pesan tidak boleh kosong' : null,
+          errorText: _empty ? AppStrings.t('help_empty_msg') : null,
           onChanged: (_) {
             if (_empty) setState(() => _empty = false);
           },
         ),
         const SizedBox(height: 18),
         SoftDialogActions(
-          cancelLabel: 'Cancel',
-          okLabel: 'Send',
+          cancelLabel: AppStrings.t('help_cancel'),
+          okLabel: AppStrings.t('help_send'),
           onOk: _send,
         ),
       ],

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/tap_scale.dart';
@@ -58,8 +59,8 @@ TextStyle _text(
   );
 }
 
-const _softBorder = Color(0xFFE3F1FF);
-const _fieldBg = Color(0xFFF3F8FE);
+Color get _softBorder => AppColors.softBorder;
+Color get _fieldBg => AppColors.softFill;
 
 List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.45}) {
   return [
@@ -71,17 +72,11 @@ List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.4
   ];
 }
 
-const _monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
+List<String> get _monthNames => AppStrings.monthNames;
 
-const _shortMonths = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-];
+List<String> get _shortMonths => AppStrings.shortMonths;
 
-const _dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+List<String> get _dayNames => AppStrings.dayNames;
 
 String _fullDate(DateTime d) =>
     '${_dayNames[d.weekday - 1]}, ${d.day} ${_monthNames[d.month - 1]} ${d.year}';
@@ -193,7 +188,7 @@ class _FileViewState extends State<FileView> {
     final panelHeight = math.max(420.0, media.size.height - used);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
@@ -243,12 +238,12 @@ class _FileViewState extends State<FileView> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
                   boxShadow: _blueShadow(),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 18,
                   color: AppColors.tersier,
@@ -261,12 +256,12 @@ class _FileViewState extends State<FileView> {
               padding: const EdgeInsets.symmetric(horizontal: 28),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(23),
                 border: Border.all(color: _softBorder, width: 1.2),
                 boxShadow: _blueShadow(),
               ),
-              child: Text('File Page', style: _text(16, weight: FontWeight.w700)),
+              child: Text(AppStrings.t('file_title'), style: _text(16, weight: FontWeight.w700)),
             ),
           ],
         ),
@@ -283,7 +278,7 @@ class _FileViewState extends State<FileView> {
       height: 46,
       padding: const EdgeInsets.only(left: 16, right: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(23),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(),
@@ -306,7 +301,7 @@ class _FileViewState extends State<FileView> {
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
-                hintText: 'Cari nama atau tag file...',
+                hintText: AppStrings.t('file_search'),
                 hintStyle: _text(14, color: AppColors.textDark.withValues(alpha: 0.5)),
               ),
             ),
@@ -331,7 +326,7 @@ class _FileViewState extends State<FileView> {
                     color: AppColors.primer.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
+                  child: Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
                 ),
               ),
             ),
@@ -353,7 +348,7 @@ class _FileViewState extends State<FileView> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 18, dy: 5),
@@ -378,7 +373,7 @@ class _FileViewState extends State<FileView> {
           SizedBox(
             height: 20,
             child: Row(
-              children: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+              children: AppStrings.dayShortSunFirst
                   .map(
                     (d) => Expanded(
                       child: Center(
@@ -488,7 +483,7 @@ class _FileViewState extends State<FileView> {
                     12,
                     weight: inMonth ? FontWeight.w600 : FontWeight.w400,
                     color: isToday
-                        ? Colors.white
+                        ? AppColors.onAccent
                         : AppColors.textDark.withValues(alpha: inMonth ? 1 : 0.28),
                   ),
                 ),
@@ -523,11 +518,11 @@ class _FileViewState extends State<FileView> {
         children: [
           _dot(filled: true),
           const SizedBox(width: 5),
-          Text('Foto', style: labelStyle),
+          Text(AppStrings.t('photos'), style: labelStyle),
           const SizedBox(width: 14),
           _dot(filled: false),
           const SizedBox(width: 5),
-          Text('Dokumen', style: labelStyle),
+          Text(AppStrings.t('docs'), style: labelStyle),
         ],
       ),
     );
@@ -540,7 +535,7 @@ class _FileViewState extends State<FileView> {
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Tutup',
+      barrierLabel: AppStrings.t('close'),
       barrierColor: Colors.black.withValues(alpha: 0.18),
       transitionDuration: const Duration(milliseconds: 240),
       pageBuilder: (context, _, __) => SafeArea(
@@ -589,7 +584,7 @@ class _FileViewState extends State<FileView> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 22, dy: 6, alpha: 0.55),
@@ -670,7 +665,7 @@ class _FileViewState extends State<FileView> {
               heightFactor: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: _blueShadow(blur: 8, dy: 2, alpha: 0.35),
                 ),
@@ -679,8 +674,8 @@ class _FileViewState extends State<FileView> {
           ),
           Row(
             children: [
-              label('Foto', Icons.image_outlined, photoCount, FileKind.photo),
-              label('Dokumen', Icons.description_outlined, docCount, FileKind.document),
+              label(AppStrings.t('photos'), Icons.image_outlined, photoCount, FileKind.photo),
+              label(AppStrings.t('docs'), Icons.description_outlined, docCount, FileKind.document),
             ],
           ),
         ],
@@ -722,7 +717,7 @@ class _FileViewState extends State<FileView> {
                 style: _text(11, weight: FontWeight.w700),
               ),
               Text(
-                '${e.tag} · ${e.date.day} ${_shortMonths[e.date.month - 1]}',
+                '${AppStrings.tag(e.tag)} · ${e.date.day} ${_shortMonths[e.date.month - 1]}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: _text(9.5, color: AppColors.textDark.withValues(alpha: 0.55)),
@@ -737,8 +732,8 @@ class _FileViewState extends State<FileView> {
   Widget _buildEmpty({Key? key, required int otherCount}) {
     final isPhoto = _tab == FileKind.photo;
     final searching = _query.trim().isNotEmpty;
-    final noun = isPhoto ? 'foto' : 'dokumen';
-    final otherNoun = isPhoto ? 'dokumen' : 'foto';
+    final noun = isPhoto ? AppStrings.t('photo_word') : AppStrings.t('doc_word');
+    final otherNoun = isPhoto ? AppStrings.t('doc_word') : AppStrings.t('photo_word');
 
     return Center(
       key: key,
@@ -752,7 +747,9 @@ class _FileViewState extends State<FileView> {
           ),
           const SizedBox(height: 8),
           Text(
-            searching ? 'Tidak ada $noun yang cocok' : 'Belum ada $noun',
+            searching
+                ? AppStrings.t('none_match', {'x': noun})
+                : AppStrings.t('none_yet', {'x': noun}),
             style: _text(13, weight: FontWeight.w700),
           ),
           if (searching && otherCount > 0) ...[
@@ -769,7 +766,7 @@ class _FileViewState extends State<FileView> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
-                  'Ada $otherCount $otherNoun yang cocok',
+                  AppStrings.t('other_match', {'n': otherCount, 'x': otherNoun}),
                   style: _text(11.5, weight: FontWeight.w600),
                 ),
               ),
@@ -799,11 +796,11 @@ class _FileViewState extends State<FileView> {
             Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.assignment_turned_in_outlined,
                 size: 21,
                 color: AppColors.tersier,
@@ -814,10 +811,10 @@ class _FileViewState extends State<FileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Kumpulkan tugas', style: _text(13, weight: FontWeight.w700)),
+                  Text(AppStrings.t('submit_task'), style: _text(13, weight: FontWeight.w700)),
                   const SizedBox(height: 1),
                   Text(
-                    'Buka Mipo untuk mengumpulkan tugas',
+                    AppStrings.t('open_mipo'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: _text(10.5, color: AppColors.textDark.withValues(alpha: 0.65)),
@@ -848,12 +845,22 @@ class _Thumb extends StatelessWidget {
 
   const _Thumb({required this.entry});
 
-  static const _palettes = [
+  static const _lightPalettes = [
     [Color(0xFFD6ECFF), Color(0xFFBFE0FF)],
     [Color(0xFFE3F1FF), Color(0xFFC9E6FF)],
     [Color(0xFFDDEBFF), Color(0xFFB9D9F7)],
     [Color(0xFFE6F3FF), Color(0xFFCBE4FA)],
   ];
+
+  static const _darkPalettes = [
+    [Color(0xFF2B3E58), Color(0xFF34506F)],
+    [Color(0xFF2E435F), Color(0xFF3A5678)],
+    [Color(0xFF29405C), Color(0xFF355274)],
+    [Color(0xFF2D4560), Color(0xFF3B5A7C)],
+  ];
+
+  static List<List<Color>> get _palettes =>
+      AppColors.dark ? _darkPalettes : _lightPalettes;
 
   Widget _placeholder() {
     final colors = _palettes[entry.id.hashCode.abs() % _palettes.length];
@@ -938,7 +945,7 @@ class _FloatingCard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 340),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 24, dy: 8, alpha: 0.6),
@@ -963,7 +970,7 @@ class _CloseButton extends StatelessWidget {
           color: AppColors.primer.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
+        child: Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
       ),
     );
   }
@@ -1030,7 +1037,7 @@ class _FilePreview extends StatelessWidget {
             children: [
               _chip(entry.tag, Icons.sell_outlined),
               _chip(_shortDate(entry.date), Icons.event_rounded),
-              _chip(isPhoto ? 'Foto' : _ext(entry.name), isPhoto ? Icons.image_outlined : Icons.description_outlined),
+              _chip(isPhoto ? AppStrings.t('photo_single') : _ext(entry.name), isPhoto ? Icons.image_outlined : Icons.description_outlined),
             ],
           ),
         ],
@@ -1081,7 +1088,7 @@ class _DayFiles extends StatelessWidget {
                   e.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: _text(10.5, weight: FontWeight.w600, color: Colors.white),
+                  style: _text(10.5, weight: FontWeight.w600, color: AppColors.onAccent),
                 ),
               ),
             ),
@@ -1188,7 +1195,7 @@ class _DayFiles extends StatelessWidget {
                     Text(_fullDate(day), style: _text(14, weight: FontWeight.w700)),
                     if (items.isNotEmpty)
                       Text(
-                        '${items.length} berkas',
+                        AppStrings.t('files_count', {'n': items.length}),
                         style: _text(10.5, color: AppColors.textDark.withValues(alpha: 0.6)),
                       ),
                   ],
@@ -1215,7 +1222,7 @@ class _DayFiles extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Tidak ada foto atau dokumen di tanggal ini',
+                    AppStrings.t('file_none_date'),
                     textAlign: TextAlign.center,
                     style: _text(
                       12,

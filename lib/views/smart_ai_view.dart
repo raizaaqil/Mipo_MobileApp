@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 import 'package:flutter/services.dart';
 
 import '../core/app_colors.dart';
@@ -10,26 +11,26 @@ import '../widgets/tap_scale.dart';
 // KONSTANTA & GAYA (sama dengan Home, Pet, dan Progress)
 // ===========================================================
 
-const Color _softBorder = Color(0xFFE3F1FF);
-const Color _fieldBg = Color(0xFFF3F8FE);
+Color get _softBorder => AppColors.softBorder;
+Color get _fieldBg => AppColors.softFill;
 const int _maxPinned = 10;
 
 /// Biru muda untuk bubble AI, chat aktif, dan kartu terpilih.
-final Color _tableColor =
-    Color.alphaBlend(AppColors.primer.withValues(alpha: 0.5), Colors.white);
+Color get _tableColor =>
+    Color.alphaBlend(AppColors.primer.withValues(alpha: 0.5), AppColors.surface);
 
 /// Satu-satunya gaya teks di halaman ini (hanya font Huninn).
 TextStyle _t({
   double size = 14,
   FontWeight weight = FontWeight.w400,
-  Color color = AppColors.textDark,
+  Color? color,
   double? height,
 }) {
   return TextStyle(
     fontFamily: 'Huninn',
     fontSize: size,
     fontWeight: weight,
-    color: color,
+    color: color ?? AppColors.textDark,
     height: height,
   );
 }
@@ -53,7 +54,7 @@ Widget _circleButton(IconData icon, VoidCallback onTap, {double iconSize = 20}) 
       width: 46,
       height: 46,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         shape: BoxShape.circle,
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(),
@@ -139,29 +140,25 @@ class _SmartAiViewState extends State<SmartAiView> {
   final GlobalKey _inputKey = GlobalKey();
   final Random _random = Random();
 
-  static const List<String> _greetings = [
-    'Ada tugas atau deadline apa yang perlu diatur hari ini?',
-    'Mau cek jadwal kegiatanmu hari ini?',
-    'Butuh bantuan menyusun waktu untuk tugasmu?',
-    'Mau pasang alarm untuk kegiatan penting?',
-    'Ada deadline yang sedang mengejarmu?',
-    'Kegiatan apa yang ingin kamu rencanakan hari ini?',
+  static const List<String> _greetingKeys = [
+    'ai_g1', 'ai_g2', 'ai_g3', 'ai_g4', 'ai_g5', 'ai_g6',
   ];
 
   bool _isFocused = false;
   bool _isSidebarOpen = false;
   bool _isWaiting = false;
   String? _pinNotice;
-  late String _greeting;
+  late int _greetingIdx;
+  String get _greeting => AppStrings.t(_greetingKeys[_greetingIdx]);
 
   String? _activeChatId;
 
   final List<_Chat> _chats = [
-    _seedChat('1', 'Atur Waktu Ngerjain Tugas Desain', pinned: true),
-    _seedChat('2', 'Bagi Tugas Berdasarkan Deadline', pinned: true),
-    _seedChat('3', 'Jadwal Revisi Sebelum Presentasi', pinned: true),
-    _seedChat('4', 'Atur Jadwal Seminggu Penuh'),
-    _seedChat('5', 'Jadwal Kuliah dan Organisasi'),
+    _seedChat('1', AppStrings.t('ai_chat1'), pinned: true),
+    _seedChat('2', AppStrings.t('ai_chat2'), pinned: true),
+    _seedChat('3', AppStrings.t('ai_chat3'), pinned: true),
+    _seedChat('4', AppStrings.t('ai_chat4')),
+    _seedChat('5', AppStrings.t('ai_chat5')),
   ];
 
   static _Chat _seedChat(String id, String title, {bool pinned = false}) {
@@ -172,8 +169,7 @@ class _SmartAiViewState extends State<SmartAiView> {
       messages: [
         _Message(text: title, isUser: true),
         _Message(
-          text: 'Siap, aku bantu susun jadwalnya. Kamu bisa minta saran '
-              'kapan saja.',
+          text: AppStrings.t('ai_seed_reply'),
           isUser: false,
         ),
       ],
@@ -181,23 +177,23 @@ class _SmartAiViewState extends State<SmartAiView> {
   }
 
   // Contoh rekomendasi. Ganti dengan respons backend nanti.
-  static const List<ScheduleOption> _sampleOptions = [
+  static List<ScheduleOption> get _sampleOptions => [
     ScheduleOption(
-      title: 'Fokus pagi, santai malam',
+      title: AppStrings.t('ai_opt1_title'),
       items: [
-        ScheduleItem('08.00', 'Kerjakan bagian tersulit tugas'),
-        ScheduleItem('10.30', 'Istirahat dan makan siang'),
-        ScheduleItem('13.00', 'Lanjutkan revisi'),
-        ScheduleItem('19.30', 'Review ringan dan siapkan besok'),
+        ScheduleItem('08.00', AppStrings.t('ai_opt1_a')),
+        ScheduleItem('10.30', AppStrings.t('ai_opt1_b')),
+        ScheduleItem('13.00', AppStrings.t('ai_opt1_c')),
+        ScheduleItem('19.30', AppStrings.t('ai_opt1_d')),
       ],
     ),
     ScheduleOption(
-      title: 'Mulai siang, selesai sore',
+      title: AppStrings.t('ai_opt2_title'),
       items: [
-        ScheduleItem('11.00', 'Kumpulkan referensi dan bahan'),
-        ScheduleItem('13.30', 'Kerjakan inti tugas'),
-        ScheduleItem('16.00', 'Istirahat singkat'),
-        ScheduleItem('16.30', 'Finalisasi dan cek ulang'),
+        ScheduleItem('11.00', AppStrings.t('ai_opt2_a')),
+        ScheduleItem('13.30', AppStrings.t('ai_opt2_b')),
+        ScheduleItem('16.00', AppStrings.t('ai_opt2_c')),
+        ScheduleItem('16.30', AppStrings.t('ai_opt2_d')),
       ],
     ),
   ];
@@ -212,7 +208,7 @@ class _SmartAiViewState extends State<SmartAiView> {
   @override
   void initState() {
     super.initState();
-    _greeting = _greetings[_random.nextInt(_greetings.length)];
+    _greetingIdx = _random.nextInt(_greetingKeys.length);
     _inputFocus.addListener(() {
       if (!mounted) return;
       setState(() => _isFocused = _inputFocus.hasFocus);
@@ -233,11 +229,11 @@ class _SmartAiViewState extends State<SmartAiView> {
   // ---------------------------------------------------------
 
   void _pickNewGreeting() {
-    String next;
+    int next;
     do {
-      next = _greetings[_random.nextInt(_greetings.length)];
-    } while (next == _greeting && _greetings.length > 1);
-    _greeting = next;
+      next = _random.nextInt(_greetingKeys.length);
+    } while (next == _greetingIdx && _greetingKeys.length > 1);
+    _greetingIdx = next;
   }
 
   void _openSidebar() {
@@ -281,10 +277,7 @@ class _SmartAiViewState extends State<SmartAiView> {
   void _togglePin(_Chat chat) {
     HapticFeedback.selectionClick();
     if (!chat.pinned && _chats.where((c) => c.pinned).length >= _maxPinned) {
-      _showPinNotice(
-        'Maksimal $_maxPinned chat yang bisa dipin. '
-        'Lepas pin salah satu dulu.',
-      );
+      _showPinNotice(AppStrings.t('ai_pin_max', {'n': _maxPinned}));
       return;
     }
     setState(() => chat.pinned = !chat.pinned);
@@ -360,19 +353,21 @@ class _SmartAiViewState extends State<SmartAiView> {
   Future<_Message> _mockAiReply(String prompt) async {
     await Future.delayed(const Duration(milliseconds: 1100));
     final p = prompt.toLowerCase();
-    const keys = ['saran', 'rekomendasi', 'atur', 'susun', 'bagi', 'jadwalkan'];
+    const keys = [
+      'saran', 'rekomendasi', 'atur', 'susun', 'bagi', 'jadwalkan',
+      'suggest', 'recommend', 'schedule', 'plan', 'arrange', 'organize', 'split',
+    ];
     final wantsAdvice = keys.any((k) => p.contains(k));
 
     if (wantsAdvice) {
       return _Message(
-        text: 'Ini 2 rekomendasi susunan jadwal yang bisa kamu pilih:',
+        text: AppStrings.t('ai_reply_options'),
         isUser: false,
         options: _sampleOptions,
       );
     }
     return _Message(
-      text: 'Aku bisa bantu soal jadwal, alarm, tugas, file dokumen, dan '
-          'deadline. Coba minta saran penyusunan jadwal, ya!',
+      text: AppStrings.t('ai_reply_default'),
       isUser: false,
     );
   }
@@ -387,7 +382,7 @@ class _SmartAiViewState extends State<SmartAiView> {
     final ok = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Tutup',
+      barrierLabel: AppStrings.t('close'),
       barrierColor: Colors.black.withValues(alpha: 0.18),
       transitionDuration: const Duration(milliseconds: 240),
       pageBuilder: (_, __, ___) => _ConfirmDialog(option: option),
@@ -413,8 +408,7 @@ class _SmartAiViewState extends State<SmartAiView> {
       msg.acceptedIndex = index;
       _activeChat?.messages.add(
         _Message(
-          text: 'Siap! "${option.title}" sudah masuk ke daftar jadwal '
-              'dan kalendermu.',
+          text: AppStrings.t('ai_accepted_msg', {'t': option.title}),
           isUser: false,
         ),
       );
@@ -427,8 +421,8 @@ class _SmartAiViewState extends State<SmartAiView> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          'Jadwal ditambahkan ke kalender',
-          style: _t(size: 13, weight: FontWeight.w600, color: Colors.white),
+          AppStrings.t('ai_snack'),
+          style: _t(size: 13, weight: FontWeight.w600, color: AppColors.onAccent),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.tersier,
@@ -518,7 +512,7 @@ class _SmartAiViewState extends State<SmartAiView> {
               height: 46,
               padding: const EdgeInsets.symmetric(horizontal: 22),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(23),
                 border: Border.all(color: _softBorder, width: 1.2),
                 boxShadow: _blueShadow(),
@@ -526,13 +520,13 @@ class _SmartAiViewState extends State<SmartAiView> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.auto_awesome_rounded,
                     size: 20,
                     color: AppColors.tersier,
                   ),
                   const SizedBox(width: 8),
-                  Text('Smart AI', style: _t(size: 16, weight: FontWeight.w700)),
+                  Text(AppStrings.t('ai_title'), style: _t(size: 16, weight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -554,7 +548,7 @@ class _SmartAiViewState extends State<SmartAiView> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: radius,
         boxShadow: _blueShadow(blur: 24, dy: -6, alpha: 0.55),
       ),
@@ -588,7 +582,7 @@ class _SmartAiViewState extends State<SmartAiView> {
                           color: AppColors.primer.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.auto_awesome_rounded,
                           size: 30,
                           color: AppColors.tersier,
@@ -648,7 +642,7 @@ class _SmartAiViewState extends State<SmartAiView> {
           constraints: const BoxConstraints(minHeight: 52),
           padding: const EdgeInsets.fromLTRB(18, 4, 6, 4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: _isFocused ? AppColors.tersier : _softBorder,
@@ -680,7 +674,7 @@ class _SmartAiViewState extends State<SmartAiView> {
                   style: _t(size: 14, weight: FontWeight.w600),
                   cursorColor: AppColors.tersier,
                   decoration: InputDecoration(
-                    hintText: 'Tanya aku',
+                    hintText: AppStrings.t('ai_input_hint'),
                     hintStyle: _t(
                       size: 14,
                       color: AppColors.textDark.withValues(alpha: 0.4),
@@ -709,9 +703,9 @@ class _SmartAiViewState extends State<SmartAiView> {
                           ? AppColors.tersier
                           : AppColors.tersier.withValues(alpha: 0.35),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.arrow_upward_rounded,
-                      color: Colors.white,
+                      color: AppColors.onAccent,
                       size: 22,
                     ),
                   ),
@@ -770,7 +764,7 @@ class _SmartAiViewState extends State<SmartAiView> {
         style: _t(
           size: 13.5,
           weight: FontWeight.w600,
-          color: m.isUser ? Colors.white : AppColors.textDark,
+          color: m.isUser ? AppColors.onAccent : AppColors.textDark,
           height: 1.4,
         ),
       ),
@@ -824,7 +818,7 @@ class _SmartAiViewState extends State<SmartAiView> {
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: accepted ? _tableColor : Colors.white,
+          color: accepted ? _tableColor : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: accepted ? AppColors.tersier : _softBorder,
@@ -845,11 +839,11 @@ class _SmartAiViewState extends State<SmartAiView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Opsi ${i + 1}',
+                    AppStrings.t('ai_option_n', {'n': i + 1}),
                     style: _t(
                       size: 11.5,
                       weight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.onAccent,
                     ),
                   ),
                 ),
@@ -904,14 +898,14 @@ class _SmartAiViewState extends State<SmartAiView> {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: accepted ? Colors.white : AppColors.tersier,
+                  color: accepted ? AppColors.onAccent : AppColors.tersier,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (accepted) ...[
-                      const Icon(
+                      Icon(
                         Icons.check_circle_rounded,
                         size: 18,
                         color: AppColors.tersier,
@@ -919,11 +913,11 @@ class _SmartAiViewState extends State<SmartAiView> {
                       const SizedBox(width: 6),
                     ],
                     Text(
-                      accepted ? 'Terpilih' : 'Pilih jadwal ini',
+                      accepted ? AppStrings.t('ai_chosen') : AppStrings.t('ai_choose'),
                       style: _t(
                         size: 13.5,
                         weight: FontWeight.w700,
-                        color: accepted ? AppColors.textDark : Colors.white,
+                        color: accepted ? AppColors.textDark : AppColors.onAccent,
                       ),
                     ),
                   ],
@@ -953,7 +947,7 @@ class _SmartAiViewState extends State<SmartAiView> {
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: const BorderRadius.horizontal(right: Radius.circular(32)),
           border: Border.all(color: _softBorder, width: 1.2),
           boxShadow: [
@@ -997,12 +991,12 @@ class _SmartAiViewState extends State<SmartAiView> {
                     cursorColor: AppColors.tersier,
                     style: _t(size: 13.5, weight: FontWeight.w600),
                     decoration: InputDecoration(
-                      hintText: 'Cari percakapan',
+                      hintText: AppStrings.t('ai_search_chat'),
                       hintStyle: _t(
                         size: 13.5,
                         color: AppColors.textDark.withValues(alpha: 0.4),
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.search_rounded,
                         color: AppColors.tersier,
                       ),
@@ -1016,7 +1010,7 @@ class _SmartAiViewState extends State<SmartAiView> {
                 // NEW CHAT
                 _sidebarAction(
                   icon: Icons.add_comment_rounded,
-                  label: 'New Chat',
+                  label: AppStrings.t('ai_new_chat'),
                   onTap: _startNewChat,
                 ),
 
@@ -1049,18 +1043,18 @@ class _SmartAiViewState extends State<SmartAiView> {
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.zero,
                     children: [
-                      _sectionTitle('Pinned (${pinnedAll.length}/$_maxPinned)'),
+                      _sectionTitle(AppStrings.t('ai_pinned', {'a': pinnedAll.length, 'b': _maxPinned})),
                       const SizedBox(height: 8),
                       if (pinned.isEmpty)
-                        _emptyHint('Belum ada chat yang dipin')
+                        _emptyHint(AppStrings.t('ai_pinned_empty'))
                       else
                         for (final c in pinned)
                           _chatTile(c, key: ValueKey('p-${c.id}')),
                       const SizedBox(height: 20),
-                      _sectionTitle('History'),
+                      _sectionTitle(AppStrings.t('ai_history')),
                       const SizedBox(height: 8),
                       if (history.isEmpty)
-                        _emptyHint('Tidak ada percakapan')
+                        _emptyHint(AppStrings.t('ai_no_conv'))
                       else
                         for (final c in history)
                           _chatTile(c, key: ValueKey('h-${c.id}')),
@@ -1199,7 +1193,7 @@ class _ConfirmDialog extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 340),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _softBorder, width: 1.2),
             boxShadow: _blueShadow(blur: 24, dy: 8, alpha: 0.6),
@@ -1214,7 +1208,7 @@ class _ConfirmDialog extends StatelessWidget {
                   color: AppColors.primer.withValues(alpha: 0.6),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.event_available_rounded,
                   color: AppColors.tersier,
                   size: 28,
@@ -1222,7 +1216,7 @@ class _ConfirmDialog extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Pakai jadwal ini?',
+                AppStrings.t('ai_use_q'),
                 style: _t(size: 16, weight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
@@ -1237,8 +1231,7 @@ class _ConfirmDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Jadwal akan otomatis masuk ke daftar jadwal dan '
-                'kalendermu.',
+                AppStrings.t('ai_use_note'),
                 textAlign: TextAlign.center,
                 style: _t(
                   size: 12.5,
@@ -1257,12 +1250,12 @@ class _ConfirmDialog extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: _softBorder, width: 1.4),
                         ),
                         child: Text(
-                          'Kembali',
+                          AppStrings.t('ai_back'),
                           style: _t(size: 14, weight: FontWeight.w700),
                         ),
                       ),
@@ -1282,11 +1275,11 @@ class _ConfirmDialog extends StatelessWidget {
                           boxShadow: _blueShadow(blur: 10, dy: 3, alpha: 0.35),
                         ),
                         child: Text(
-                          'Setuju',
+                          AppStrings.t('ai_agree'),
                           style: _t(
                             size: 14,
                             weight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppColors.onAccent,
                           ),
                         ),
                       ),
@@ -1352,7 +1345,7 @@ class _TypingBubbleState extends State<_TypingBubble>
                 width: 8,
                 height: 8,
                 margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.tersier,
                   shape: BoxShape.circle,
                 ),

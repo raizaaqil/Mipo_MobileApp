@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../data/mipo_store.dart';
@@ -54,8 +55,8 @@ TextStyle _text(
   );
 }
 
-const _softBorder = Color(0xFFE3F1FF);
-const _fieldBg = Color(0xFFF3F8FE);
+Color get _softBorder => AppColors.softBorder;
+Color get _fieldBg => AppColors.softFill;
 
 List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.45}) {
   return [
@@ -67,17 +68,11 @@ List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.4
   ];
 }
 
-const _monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
+List<String> get _monthNames => AppStrings.monthNames;
 
-const _shortMonths = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-];
+List<String> get _shortMonths => AppStrings.shortMonths;
 
-const _dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+List<String> get _dayNames => AppStrings.dayNames;
 
 String _dayName(DateTime d) => _dayNames[d.weekday - 1];
 
@@ -96,9 +91,9 @@ String _repeatLabel(AlarmItem a) {
     case AlarmRepeat.once:
       return '${_dayName(a.date)}, ${_dateLabel(a.date)}';
     case AlarmRepeat.daily:
-      return 'Setiap hari';
+      return AppStrings.t('cal_daily');
     case AlarmRepeat.weekly:
-      return 'Setiap ${_dayName(a.date)}';
+      return AppStrings.t('cal_every_dayname', {'d': _dayName(a.date)});
   }
 }
 
@@ -203,7 +198,7 @@ class _CalendarViewState extends State<CalendarView> {
     final panelMinHeight = media.size.height > used ? media.size.height - used : 0.0;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
@@ -241,12 +236,12 @@ class _CalendarViewState extends State<CalendarView> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
                   boxShadow: _blueShadow(),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 18,
                   color: AppColors.tersier,
@@ -259,12 +254,12 @@ class _CalendarViewState extends State<CalendarView> {
               padding: const EdgeInsets.symmetric(horizontal: 28),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(23),
                 border: Border.all(color: _softBorder, width: 1.2),
                 boxShadow: _blueShadow(),
               ),
-              child: Text('Calendar', style: _text(16, weight: FontWeight.w700)),
+              child: Text(AppStrings.t('cal_title'), style: _text(16, weight: FontWeight.w700)),
             ),
           ],
         ),
@@ -284,7 +279,7 @@ class _CalendarViewState extends State<CalendarView> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 18, dy: 5),
@@ -309,7 +304,7 @@ class _CalendarViewState extends State<CalendarView> {
           SizedBox(
             height: 20,
             child: Row(
-              children: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+              children: AppStrings.dayShortSunFirst
                   .map(
                     (d) => Expanded(
                       child: Center(
@@ -423,7 +418,7 @@ class _CalendarViewState extends State<CalendarView> {
                     12,
                     weight: inMonth ? FontWeight.w600 : FontWeight.w400,
                     color: isToday
-                        ? Colors.white
+                        ? AppColors.onAccent
                         : AppColors.textDark.withValues(alpha: inMonth ? 1 : 0.28),
                   ),
                 ),
@@ -470,7 +465,7 @@ class _CalendarViewState extends State<CalendarView> {
               child: _dot(filled: true, color: c),
             ),
           const SizedBox(width: 2),
-          Text('Kegiatan', style: labelStyle),
+          Text(AppStrings.t('legend_activity'), style: labelStyle),
           const SizedBox(width: 14),
           _dot(filled: false, color: AppColors.textDark.withValues(alpha: 0.7)),
           const SizedBox(width: 5),
@@ -487,7 +482,7 @@ class _CalendarViewState extends State<CalendarView> {
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Tutup',
+      barrierLabel: AppStrings.t('close'),
       barrierColor: Colors.black.withValues(alpha: 0.18),
       transitionDuration: const Duration(milliseconds: 240),
       pageBuilder: (context, _, __) => SafeArea(
@@ -540,7 +535,7 @@ class _CalendarViewState extends State<CalendarView> {
       constraints: BoxConstraints(minHeight: minHeight),
       padding: EdgeInsets.fromLTRB(16, 20, 16, 28 + bottomInset),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: _blueShadow(blur: 24, dy: -6, alpha: 0.55),
       ),
@@ -549,30 +544,30 @@ class _CalendarViewState extends State<CalendarView> {
         children: [
           _expandableCard<ScheduleItem>(
             section: _Section.schedule,
-            title: 'Your Schedule!',
+            title: AppStrings.t('cal_your_schedule'),
             items: schedules,
             previewCount: 3,
-            emptyText: 'Belum ada kegiatan.',
+            emptyText: AppStrings.t('cal_empty_sched'),
             itemBuilder: _scheduleBar,
             onItemTap: (s) => _focusOnDate(s.date),
           ),
           const SizedBox(height: 16),
           _expandableCard<AlarmItem>(
             section: _Section.alarm,
-            title: 'Your Alarm',
+            title: AppStrings.t('cal_your_alarm'),
             items: alarms,
             previewCount: 3,
-            emptyText: 'Belum ada alarm.',
+            emptyText: AppStrings.t('cal_empty_alarm'),
             itemBuilder: _alarmBar,
             onItemTap: (a) => _focusOnDate(a.date),
           ),
           const SizedBox(height: 16),
           _expandableCard<NoteItem>(
             section: _Section.notes,
-            title: 'Your Notes',
+            title: AppStrings.t('cal_your_notes'),
             items: _notes,
             previewCount: 2,
-            emptyText: 'Belum ada catatan.',
+            emptyText: AppStrings.t('cal_empty_notes'),
             itemBuilder: _noteBar,
             onItemTap: _showNoteDetail,
           ),
@@ -627,7 +622,7 @@ class _CalendarViewState extends State<CalendarView> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
-                  'Lihat ${items.length - previewCount} lainnya',
+                  AppStrings.t('see_more', {'n': items.length - previewCount}),
                   style: _text(
                     11,
                     weight: FontWeight.w600,
@@ -694,10 +689,10 @@ class _CalendarViewState extends State<CalendarView> {
                             shape: BoxShape.circle,
                             boxShadow: _blueShadow(blur: 10, dy: 3),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.add_rounded,
                             size: 22,
-                            color: Colors.white,
+                            color: AppColors.onAccent,
                           ),
                         ),
                       ),
@@ -737,7 +732,7 @@ class _CalendarViewState extends State<CalendarView> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(22, 10, 12, 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
@@ -802,7 +797,7 @@ class _CalendarViewState extends State<CalendarView> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
@@ -814,7 +809,7 @@ class _CalendarViewState extends State<CalendarView> {
                   color: AppColors.primer.withValues(alpha: 0.6),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.alarm_rounded,
                   size: 18,
                   color: AppColors.tersier,
@@ -864,7 +859,7 @@ class _CalendarViewState extends State<CalendarView> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -912,13 +907,13 @@ class _CalendarViewState extends State<CalendarView> {
     String message = '';
     if (result is ScheduleItem) {
       _store.addSchedule(result);
-      message = 'Kegiatan berhasil ditambahkan';
+      message = AppStrings.t('cal_added_sched');
     } else if (result is AlarmItem) {
       _store.addAlarm(result);
-      message = 'Alarm berhasil ditambahkan';
+      message = AppStrings.t('cal_added_alarm');
     } else if (result is NoteItem) {
       _store.addNote(result);
-      message = 'Catatan berhasil ditambahkan';
+      message = AppStrings.t('cal_added_note');
     }
     if (message.isNotEmpty) _toast(message);
   }
@@ -930,7 +925,7 @@ class _CalendarViewState extends State<CalendarView> {
       SnackBar(
         content: Text(
           message,
-          style: _text(13, weight: FontWeight.w600, color: Colors.white),
+          style: _text(13, weight: FontWeight.w600, color: AppColors.onAccent),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.tersier,
@@ -959,7 +954,7 @@ class _FloatingCard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 340),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 24, dy: 8, alpha: 0.6),
@@ -984,7 +979,7 @@ class _CloseButton extends StatelessWidget {
           color: AppColors.primer.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
+        child: Icon(Icons.close_rounded, size: 16, color: AppColors.textDark),
       ),
     );
   }
@@ -1050,7 +1045,7 @@ class _DayPopup extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Tidak ada kegiatan di tanggal ini',
+                    AppStrings.t('cal_none_on_date'),
                     style: _text(
                       12,
                       weight: FontWeight.w600,
@@ -1068,7 +1063,7 @@ class _DayPopup extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (schedules.isNotEmpty) label('Kegiatan'),
+                    if (schedules.isNotEmpty) label(AppStrings.t('legend_activity')),
                     for (final s in schedules)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
@@ -1115,7 +1110,7 @@ class _DayPopup extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.alarm_rounded,
                               size: 18,
                               color: AppColors.tersier,
@@ -1180,7 +1175,7 @@ class _NoteDetail extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
-                  note.content.isEmpty ? '(Tidak ada isi)' : note.content,
+                  note.content.isEmpty ? AppStrings.t('cal_no_content') : note.content,
                   style: _text(13, color: AppColors.textDark.withValues(alpha: 0.85)),
                 ),
               ),
@@ -1236,7 +1231,7 @@ class _AddSheetState extends State<_AddSheet> {
       data: base.copyWith(
         colorScheme: base.colorScheme.copyWith(
           primary: AppColors.tersier,
-          onPrimary: Colors.white,
+          onPrimary: AppColors.onAccent,
           onSurface: AppColors.textDark,
         ),
       ),
@@ -1320,7 +1315,7 @@ class _AddSheetState extends State<_AddSheet> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.tersier, width: 1.4),
+          borderSide: BorderSide(color: AppColors.tersier, width: 1.4),
         ),
       ),
     );
@@ -1373,7 +1368,7 @@ class _AddSheetState extends State<_AddSheet> {
             style: _text(
               12,
               weight: FontWeight.w600,
-              color: selected ? Colors.white : AppColors.textDark,
+              color: selected ? AppColors.onAccent : AppColors.textDark,
             ),
           ),
         ),
@@ -1385,21 +1380,21 @@ class _AddSheetState extends State<_AddSheet> {
   Widget build(BuildContext context) {
     final kind = widget.kind;
     final sheetTitle = switch (kind) {
-      _Section.schedule => 'Tambah Schedule',
-      _Section.alarm => 'Tambah Alarm',
-      _Section.notes => 'Tambah Notes',
+      _Section.schedule => AppStrings.t('cal_add_sched'),
+      _Section.alarm => AppStrings.t('cal_add_alarm'),
+      _Section.notes => AppStrings.t('cal_add_notes'),
     };
     final titleLabel = switch (kind) {
-      _Section.schedule => 'Nama / tag kegiatan',
-      _Section.alarm => 'Nama / tag alarm',
-      _Section.notes => 'Judul notes',
+      _Section.schedule => AppStrings.t('cal_name_sched'),
+      _Section.alarm => AppStrings.t('cal_name_alarm'),
+      _Section.notes => AppStrings.t('cal_name_notes'),
     };
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           boxShadow: _blueShadow(blur: 24, dy: -6, alpha: 0.6),
         ),
@@ -1424,17 +1419,17 @@ class _AddSheetState extends State<_AddSheet> {
                 const SizedBox(height: 14),
                 Text(sheetTitle, style: _text(17, weight: FontWeight.w700)),
                 _label(titleLabel),
-                _field(_titleCtrl, 'Ketik di sini...'),
+                _field(_titleCtrl, AppStrings.t('cal_type_here')),
                 if (kind == _Section.schedule) ...[
-                  _label('Keterangan'),
-                  _field(_bodyCtrl, 'Keterangan kegiatan', lines: 2),
+                  _label(AppStrings.t('cal_desc')),
+                  _field(_bodyCtrl, AppStrings.t('cal_desc_hint'), lines: 2),
                 ],
                 if (kind == _Section.notes) ...[
-                  _label('Isi notes'),
-                  _field(_bodyCtrl, 'Tulis catatanmu...', lines: 6),
+                  _label(AppStrings.t('cal_note_body')),
+                  _field(_bodyCtrl, AppStrings.t('cal_note_hint'), lines: 6),
                 ],
                 if (kind != _Section.notes) ...[
-                  _label(kind == _Section.alarm ? 'Tanggal mulai dan jam' : 'Tanggal dan jam'),
+                  _label(kind == _Section.alarm ? AppStrings.t('cal_date_time_alarm') : AppStrings.t('cal_date_time')),
                   Row(
                     children: [
                       Expanded(
@@ -1458,14 +1453,14 @@ class _AddSheetState extends State<_AddSheet> {
                   ),
                 ],
                 if (kind == _Section.alarm) ...[
-                  _label('Ulangi'),
+                  _label(AppStrings.t('cal_repeat')),
                   Row(
                     children: [
-                      _repeatChip('Sekali', AlarmRepeat.once),
+                      _repeatChip(AppStrings.t('cal_once'), AlarmRepeat.once),
                       const SizedBox(width: 8),
-                      _repeatChip('Setiap hari', AlarmRepeat.daily),
+                      _repeatChip(AppStrings.t('cal_daily'), AlarmRepeat.daily),
                       const SizedBox(width: 8),
-                      _repeatChip('Setiap minggu', AlarmRepeat.weekly),
+                      _repeatChip(AppStrings.t('cal_weekly'), AlarmRepeat.weekly),
                     ],
                   ),
                 ],
@@ -1480,11 +1475,11 @@ class _AddSheetState extends State<_AddSheet> {
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surface,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: _softBorder, width: 1.4),
                           ),
-                          child: Text('Batal', style: _text(14, weight: FontWeight.w700)),
+                          child: Text(AppStrings.t('cancel_btn'), style: _text(14, weight: FontWeight.w700)),
                         ),
                       ),
                     ),
@@ -1503,8 +1498,8 @@ class _AddSheetState extends State<_AddSheet> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            'Simpan',
-                            style: _text(14, weight: FontWeight.w700, color: Colors.white),
+                            AppStrings.t('save_btn'),
+                            style: _text(14, weight: FontWeight.w700, color: AppColors.onAccent),
                           ),
                         ),
                       ),

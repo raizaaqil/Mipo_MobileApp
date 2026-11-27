@@ -108,7 +108,6 @@ class _SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = data.danger ? AppColors.urgencyPanic : AppColors.tersier;
 
     return SoftBar(
@@ -120,9 +119,7 @@ class _SettingTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isDark
-                  ? Theme.of(context).colorScheme.surface
-                  : Colors.white,
+              color: AppColors.surface,
               shape: BoxShape.circle,
             ),
             child: Icon(data.icon, color: color, size: 22),
@@ -141,8 +138,7 @@ class _SettingTile extends StatelessWidget {
           Icon(
             Icons.chevron_right_rounded,
             size: 22,
-            color: (isDark ? Colors.white : AppColors.textDark)
-                .withValues(alpha: 0.5),
+            color: AppColors.textDark.withValues(alpha: 0.5),
           ),
         ],
       ),
@@ -203,7 +199,7 @@ class _SwitchRow extends StatelessWidget {
             trackColor: WidgetStateProperty.resolveWith(
               (s) => s.contains(WidgetState.selected)
                   ? AppColors.tersier
-                  : const Color(0xFFD5E6F7),
+                  : AppColors.btnLight,
             ),
             trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
           ),
@@ -264,8 +260,6 @@ class _DisplayDialogState extends State<_DisplayDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -280,11 +274,7 @@ class _DisplayDialogState extends State<_DisplayDialog> {
         const SizedBox(height: 10),
         Text(
           context.tr('dark_mode_note'),
-          style: softText(
-            11.5,
-            color: (isDark ? Colors.white : AppColors.textDark)
-                .withValues(alpha: 0.55),
-          ),
+          style: softText(11.5, color: AppColors.textDark.withValues(alpha: 0.55)),
         ),
         const SizedBox(height: 18),
         _Actions(onSave: () async {
@@ -521,7 +511,6 @@ class _AccountSettingViewState extends State<AccountSettingView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     Widget gap(Widget w) => Padding(padding: const EdgeInsets.only(bottom: 14), child: w);
 
     return SoftPage(
@@ -542,11 +531,7 @@ class _AccountSettingViewState extends State<AccountSettingView> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     context.tr('email_readonly'),
-                    style: softText(
-                      11.5,
-                      color: (isDark ? Colors.white : AppColors.textDark)
-                          .withValues(alpha: 0.55),
-                    ),
+                    style: softText(11.5, color: AppColors.textDark.withValues(alpha: 0.55)),
                   ),
                 ),
               ),

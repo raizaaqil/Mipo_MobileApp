@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,9 +39,7 @@ class MipoApp extends StatelessWidget {
       return MaterialApp(
         title: 'MiPo App',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: settings.themeMode,
+        theme: AppTheme.build(Brightness.light),
         home: const SetupRequiredView(),
       );
     }
@@ -52,20 +51,79 @@ class MipoApp extends StatelessWidget {
           create: (_) => AuthProvider(settings),
         ),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settingsProv, _) {
-          return MaterialApp(
-            title: 'MiPo App',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: settingsProv.themeMode,
-            home: const AuthGate(),
-          );
-        },
+      // Dengarkan pengaturan: saat mode gelap / bahasa diganti, seluruh
+      // aplikasi (semua halaman) ikut berubah seketika.
+      child: ListenableBuilder(
+        listenable: settings,
+        builder: (context, _) => MaterialApp(
+          title: 'MiPo App',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: settings.themeMode,
+          locale: Locale(settings.language),
+          supportedLocales: const [Locale('id'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          builder: (context, child) =>
+              _RebuildOnSettings(settings: settings, child: child!),
+          home: const AuthGate(),
+        ),
       ),
     );
   }
+}
+
+/// Memaksa semua halaman yang sedang terbuka digambar ulang setiap kali
+/// mode gelap atau bahasa berubah. State halaman (isi form, scroll) tidak hilang.
+class _RebuildOnSettings extends StatefulWidget {
+  final SettingsProvider settings;
+  final Widget child;
+  const _RebuildOnSettings({required this.settings, required this.child});
+
+  @override
+  State<_RebuildOnSettings> createState() => _RebuildOnSettingsState();
+}
+
+class _RebuildOnSettingsState extends State<_RebuildOnSettings> {
+  bool? _lastDark;
+  String? _lastLang;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastDark = widget.settings.darkMode;
+    _lastLang = widget.settings.language;
+    widget.settings.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.settings.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    final s = widget.settings;
+    if (s.darkMode == _lastDark && s.language == _lastLang) return;
+    _lastDark = s.darkMode;
+    _lastLang = s.language;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      void rebuild(Element e) {
+        e.markNeedsBuild();
+        e.visitChildren(rebuild);
+      }
+
+      (context as Element).visitChildren(rebuild);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// Penentu halaman pertama: belum login -> Welcome, sudah login -> Home.

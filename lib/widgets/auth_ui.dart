@@ -10,8 +10,8 @@ import 'tap_scale.dart';
 // shadow biru, font Huninn, border lembut, dan interaksi TapScale.
 // ============================================================================
 
-const kAuthSoftBorder = Color(0xFFE3F1FF);
-const kAuthFieldBg = Color(0xFFF3F8FE);
+Color get kAuthSoftBorder => AppColors.softBorder;
+Color get kAuthFieldBg => AppColors.softFill;
 
 /// Lebar maksimal kartu, supaya di layar lebar (tablet/web) tetap presisi.
 const double kAuthCardMaxWidth = 420;
@@ -121,12 +121,12 @@ class AuthScaffold extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     shape: BoxShape.circle,
                     border: Border.all(color: kAuthSoftBorder, width: 1.2),
                     boxShadow: authBlueShadow(blur: 4, dy: 1, alpha: 0.2),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_rounded,
                     color: AppColors.tersier,
                     size: 24,
@@ -156,7 +156,7 @@ class AuthCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: kAuthSoftBorder, width: 1.2),
         boxShadow: authBlueShadow(blur: 18, dy: 4, alpha: 0.35),
@@ -199,7 +199,7 @@ class AuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = filled ? Colors.white : AppColors.tersier;
+    final fg = filled ? AppColors.onAccent : AppColors.tersier;
 
     return TapScale(
       pressedScale: 0.97,
@@ -211,7 +211,7 @@ class AuthButton extends StatelessWidget {
         width: double.infinity,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: filled ? AppColors.tersier : Colors.white,
+          color: filled ? AppColors.tersier : AppColors.surface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: filled ? AppColors.tersier : kAuthSoftBorder,
@@ -410,7 +410,7 @@ Future<T?> showAuthDialog<T>(
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(32),
             border: Border.all(color: kAuthSoftBorder, width: 1.2),
             boxShadow: authBlueShadow(blur: 18, dy: 4, alpha: 0.35),

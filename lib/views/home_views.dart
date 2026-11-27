@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/app_sidebar.dart';
@@ -77,7 +78,7 @@ TextStyle _text(
   );
 }
 
-const _softBorder = Color(0xFFE3F1FF);
+Color get _softBorder => AppColors.softBorder;
 
 List<BoxShadow> _blueShadow({double blur = 8, double dy = 2, double alpha = 0.45}) {
   return [
@@ -89,15 +90,9 @@ List<BoxShadow> _blueShadow({double blur = 8, double dy = 2, double alpha = 0.45
   ];
 }
 
-const _monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
+List<String> get _monthNames => AppStrings.monthNames;
 
-const _shortMonths = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-];
+List<String> get _shortMonths => AppStrings.shortMonths;
 
 String _dateLabel(DateTime d) => '${d.day} ${_shortMonths[d.month - 1]}';
 
@@ -243,11 +238,11 @@ class _HomeViewState extends State<HomeView> {
                 width: circle,
                 height: circle,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
                   boxShadow: _blueShadow(blur: 4, dy: 1, alpha: 0.2),                ),
-                child: const Icon(Icons.menu_rounded, color: AppColors.tersier, size: 24),
+                child: Icon(Icons.menu_rounded, color: AppColors.tersier, size: 24),
               ),
             ),
             const SizedBox(width: gap),
@@ -263,7 +258,7 @@ class _HomeViewState extends State<HomeView> {
                     width: _collapsed ? circle : expandedWidth,
                     height: circle,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(circle / 2),
                       border: Border.all(color: _softBorder, width: 1.2),
                       boxShadow: _blueShadow(),
@@ -292,7 +287,7 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Ask Anything!',
+                                      AppStrings.t('ask_anything'),
                                       style: _text(
                                         14,
                                         color: AppColors.textDark.withValues(alpha: 0.5),
@@ -307,7 +302,7 @@ class _HomeViewState extends State<HomeView> {
                           AnimatedOpacity(
                             opacity: _collapsed ? 1 : 0,
                             duration: const Duration(milliseconds: 250),
-                            child: const Icon(
+                            child: Icon(
                               Icons.chat_bubble_outline_rounded,
                               size: 22,
                               color: AppColors.tersier,
@@ -330,16 +325,16 @@ class _HomeViewState extends State<HomeView> {
   // PET MIPO + KALIMAT SINGKAT
   // --------------------------------------------------------------------------
   String _petMessage(List<_Entry> tasks) {
-    if (tasks.isEmpty) return 'Semua tugas beres, mantap!';
+    if (tasks.isEmpty) return AppStrings.t('pet_all_done');
     switch (_urgencyOf(tasks.first.deadline)) {
       case _Urgency.panic:
-        return 'Ada tugas yang deadline-nya hari ini, yuk kebut!';
+        return AppStrings.t('pet_panic');
       case _Urgency.worry:
-        return 'Deadline sudah dekat, ayo mulai kerjakan!';
+        return AppStrings.t('pet_worry');
       case _Urgency.alert:
-        return 'Cicil tugasnya pelan-pelan, ya.';
+        return AppStrings.t('pet_alert');
       case _Urgency.calm:
-        return 'Santai dulu, tapi jangan lupa tugasmu.';
+        return AppStrings.t('pet_calm');
     }
   }
 
@@ -387,7 +382,7 @@ class _HomeViewState extends State<HomeView> {
               margin: const EdgeInsets.symmetric(horizontal: 32),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: _softBorder, width: 1.2),
               ),
@@ -418,7 +413,7 @@ class _HomeViewState extends State<HomeView> {
       constraints: BoxConstraints(minHeight: minHeight),
       padding: EdgeInsets.fromLTRB(16, 20, 16, 28 + bottomInset),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: _blueShadow(blur: 14, dy: -3, alpha: 0.3),
       ),
@@ -463,7 +458,7 @@ class _HomeViewState extends State<HomeView> {
           child: Column(
             children: [
               Row(
-                children: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+                children: AppStrings.dayShortSunFirst
                     .map(
                       (d) => Expanded(
                         child: Center(
@@ -537,7 +532,7 @@ class _HomeViewState extends State<HomeView> {
                   12,
                   weight: inMonth ? FontWeight.w600 : FontWeight.w400,
                   color: isToday
-                      ? Colors.white
+                      ? AppColors.onAccent
                       : AppColors.textDark.withValues(alpha: inMonth ? 1 : 0.28),
                 ),
               ),
@@ -577,15 +572,15 @@ class _HomeViewState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionTitle('Kegiatanmu', () => _go(const CalendarView())),
+                _sectionTitle(AppStrings.t('home_activities'), () => _go(const CalendarView())),
                 const SizedBox(height: 10),
                 if (schedules.isEmpty)
-                  _emptyText('Belum ada kegiatan.')
+                  _emptyText(AppStrings.t('empty_activities'))
                 else
                   for (final e in schedules.take(3))
                     _entryBar(
                       e,
-                      background: const Color(0xFFF3F8FE),
+                      background: AppColors.softFill,
                       onTap: () => _go(const CalendarView()),
                     ),
               ],
@@ -597,7 +592,7 @@ class _HomeViewState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionTitle('Fotomu', () => _go(const FileView())),
+                _sectionTitle(AppStrings.t('home_photos'), () => _go(const FileView())),
                 const SizedBox(height: 10),
                 _buildPhotoGrid(),
               ],
@@ -636,7 +631,7 @@ class _HomeViewState extends State<HomeView> {
         child: Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F8FE),
+            color: AppColors.softFill,
             borderRadius: BorderRadius.circular(12),
           ),
           child: hasPhoto
@@ -674,15 +669,15 @@ class _HomeViewState extends State<HomeView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle('Tugasmu', () => _go(const ProgressView())),
+          _sectionTitle(AppStrings.t('home_tasks'), () => _go(const ProgressView())),
           const SizedBox(height: 10),
           if (tasks.isEmpty)
-            _emptyText('Belum ada tugas.')
+            _emptyText(AppStrings.t('empty_tasks_home'))
           else
             for (final e in tasks.take(4))
               _entryBar(
                 e,
-                background: Colors.white,
+                background: AppColors.surface,
                 onTap: () => _go(const ProgressView()),
                 trailing: _statusPill(e.status),
               ),
@@ -692,7 +687,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _statusPill(String status) {
-    final label = status == 'In Progress' ? 'Progress' : status;
+    final label = status == 'In Progress'
+        ? AppStrings.t('st_progress')
+        : (status == 'To Do' ? AppStrings.t('st_todo') : status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
@@ -780,7 +777,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${e.tag} · ${_dateLabel(e.deadline)}',
+                      '${AppStrings.tag(e.tag)} · ${_dateLabel(e.deadline)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _text(

@@ -1,45 +1,19 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/app_colors.dart';
-import '../../core/app_palette.dart';
 import 'tap_scale.dart';
 
-const softBorder = Color(0xFFE3F1FF);
-const softFill = Color(0xFFF3F8FE);
 
-bool _isDarkCtx(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark;
+Color get softBorder => AppColors.softBorder;
+Color get softFill => AppColors.softFill;
 
-Color _borderColor(BuildContext context) => _isDarkCtx(context)
-    ? context.palette.accent.withValues(alpha: 0.25)
-    : softBorder;
-
-Color _fillColor(BuildContext context) => _isDarkCtx(context)
-    ? Color.alphaBlend(
-        Colors.white.withValues(alpha: 0.06),
-        context.palette.surface,
-      )
-    : softFill;
-
-Color _cardColor(BuildContext context) =>
-    _isDarkCtx(context) ? context.palette.surface : Colors.white;
-
-Color _textColor(BuildContext context) =>
-    _isDarkCtx(context) ? context.palette.text : AppColors.textDark;
-
-/// Shadow biru di mode terang, dan shadow gelap lembut di mode gelap.
-List<BoxShadow> softShadow({
-  double blur = 10,
-  double dy = 2,
-  double alpha = 0.3,
-  bool isDark = false,
-}) {
+/// Shadow biru yang sama dengan Home.
+List<BoxShadow> softShadow({double blur = 10, double dy = 2, double alpha = 0.3}) {
   return [
     BoxShadow(
-      color: isDark
-          ? Colors.black.withValues(alpha: alpha * 1.3)
-          : AppColors.sekunder.withValues(alpha: alpha),
+      color: AppColors.sekunder.withValues(alpha: alpha),
       blurRadius: blur,
       offset: Offset(0, dy),
     ),
@@ -51,14 +25,12 @@ TextStyle softText(
   FontWeight weight = FontWeight.w400,
   Color? color,
   double? height,
-  BuildContext? context,
 }) {
-  final defaultColor = context != null ? _textColor(context) : null;
   return TextStyle(
     fontFamily: 'Huninn',
     fontSize: size,
     fontWeight: weight,
-    color: color ?? defaultColor,
+    color: color ?? AppColors.textDark,
     height: height,
   );
 }
@@ -125,14 +97,10 @@ class SoftPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final isDark = _isDarkCtx(context);
-    final bg = isDark ? context.palette.pageBg : AppColors.primer;
-    final surface = _cardColor(context);
-    final border = _borderColor(context);
     const circle = 46.0;
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: AppColors.primer,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -148,13 +116,12 @@ class SoftPage extends StatelessWidget {
                       width: circle,
                       height: circle,
                       decoration: BoxDecoration(
-                        color: surface,
+                        color: AppColors.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(color: border, width: 1.2),
-                        boxShadow:
-                            softShadow(blur: 8, alpha: 0.35, isDark: isDark),
+                        border: Border.all(color: softBorder, width: 1.2),
+                        boxShadow: softShadow(blur: 8, alpha: 0.35),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_ios_new_rounded,
                         color: AppColors.tersier,
                         size: 20,
@@ -167,21 +134,16 @@ class SoftPage extends StatelessWidget {
                       height: circle,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: surface,
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(circle / 2),
-                        border: Border.all(color: border, width: 1.2),
-                        boxShadow:
-                            softShadow(blur: 8, alpha: 0.35, isDark: isDark),
+                        border: Border.all(color: softBorder, width: 1.2),
+                        boxShadow: softShadow(blur: 8, alpha: 0.35),
                       ),
                       child: Text(
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: softText(
-                          15,
-                          weight: FontWeight.w700,
-                          context: context,
-                        ),
+                        style: softText(15, weight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -192,8 +154,7 @@ class SoftPage extends StatelessWidget {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 // Padding di DALAM scroll supaya shadow tidak terpotong.
-                padding:
-                    EdgeInsets.fromLTRB(16, 18, 16, 28 + media.padding.bottom),
+                padding: EdgeInsets.fromLTRB(16, 18, 16, 28 + media.padding.bottom),
                 child: child,
               ),
             ),
@@ -205,7 +166,7 @@ class SoftPage extends StatelessWidget {
 }
 
 // ----------------------------------------------------------------------------
-// KARTU PUTIH / GELAP: semua sudut sama (tidak ada bentuk atas/bawah yang beda)
+// KARTU PUTIH: semua sudut sama (tidak ada bentuk atas/bawah yang beda)
 // ----------------------------------------------------------------------------
 class SoftCard extends StatelessWidget {
   final Widget child;
@@ -225,19 +186,14 @@ class SoftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = _isDarkCtx(context);
-    final bg = color ?? _cardColor(context);
-    final border = _borderColor(context);
-
     return Container(
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: bg,
+        color: color ?? AppColors.surface,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: border, width: 1.2),
-        boxShadow:
-            shadow ? softShadow(blur: 14, dy: 4, isDark: isDark) : null,
+        border: Border.all(color: softBorder, width: 1.2),
+        boxShadow: shadow ? softShadow(blur: 14, dy: 4) : null,
       ),
       child: child,
     );
@@ -262,7 +218,7 @@ class SoftBar extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: _fillColor(context),
+        color: softFill,
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,
@@ -293,8 +249,7 @@ class SoftButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = _isDarkCtx(context);
-    final fg = filled ? Colors.white : AppColors.tersier;
+    final fg = filled ? AppColors.onAccent : AppColors.tersier;
     final enabled = onPressed != null && !loading;
 
     return Opacity(
@@ -309,17 +264,10 @@ class SoftButton extends StatelessWidget {
           width: double.infinity,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: filled ? AppColors.tersier : _cardColor(context),
+            color: filled ? AppColors.tersier : AppColors.surface,
             borderRadius: BorderRadius.circular(24),
-            border: filled
-                ? null
-                : Border.all(color: _borderColor(context), width: 1.4),
-            boxShadow: softShadow(
-              blur: 8,
-              dy: 2,
-              alpha: filled ? 0.4 : 0.25,
-              isDark: isDark,
-            ),
+            border: filled ? null : Border.all(color: softBorder, width: 1.4),
+            boxShadow: softShadow(blur: 8, dy: 2, alpha: filled ? 0.4 : 0.25),
           ),
           child: loading
               ? SizedBox(
@@ -334,10 +282,7 @@ class SoftButton extends StatelessWidget {
                       Icon(icon, size: 18, color: fg),
                       const SizedBox(width: 8),
                     ],
-                    Text(
-                      label,
-                      style: softText(14, weight: FontWeight.w700, color: fg),
-                    ),
+                    Text(label, style: softText(14, weight: FontWeight.w700, color: fg)),
                   ],
                 ),
         ),
@@ -389,9 +334,6 @@ class SoftField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fill = _fillColor(context);
-    final borderCol = _borderColor(context);
-    final txtCol = _textColor(context);
     final radius = BorderRadius.circular(pill ? 24 : 18);
     OutlineInputBorder border(Color c, [double w = 1.2]) => OutlineInputBorder(
           borderRadius: radius,
@@ -411,14 +353,14 @@ class SoftField extends StatelessWidget {
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       cursorColor: AppColors.tersier,
-      style: softText(13.5, weight: FontWeight.w600, color: txtCol),
+      style: softText(13.5, weight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         errorText: errorText,
         counterText: '',
         filled: true,
-        fillColor: enabled ? fill : fill.withValues(alpha: 0.6),
+        fillColor: enabled ? softFill : softFill.withValues(alpha: 0.6),
         isDense: true,
         contentPadding: EdgeInsets.symmetric(
           horizontal: 16,
@@ -427,17 +369,13 @@ class SoftField extends StatelessWidget {
         prefixIcon: prefixIcon == null
             ? null
             : Icon(prefixIcon, size: 20, color: AppColors.tersier),
-        labelStyle: softText(13, color: txtCol.withValues(alpha: 0.55)),
-        floatingLabelStyle: softText(
-          12.5,
-          weight: FontWeight.w600,
-          color: AppColors.tersier,
-        ),
-        hintStyle: softText(13, color: txtCol.withValues(alpha: 0.4)),
+        labelStyle: softText(13, color: AppColors.textDark.withValues(alpha: 0.55)),
+        floatingLabelStyle: softText(12.5, weight: FontWeight.w600, color: AppColors.tersier),
+        hintStyle: softText(13, color: AppColors.textDark.withValues(alpha: 0.4)),
         errorStyle: softText(11.5, color: AppColors.urgencyPanic),
-        border: border(borderCol),
-        enabledBorder: border(borderCol),
-        disabledBorder: border(borderCol.withValues(alpha: 0.6)),
+        border: border(softBorder),
+        enabledBorder: border(softBorder),
+        disabledBorder: border(softBorder.withValues(alpha: 0.6)),
         focusedBorder: border(AppColors.tersier, 1.4),
         errorBorder: border(AppColors.urgencyPanic),
         focusedErrorBorder: border(AppColors.urgencyPanic, 1.4),
@@ -447,7 +385,7 @@ class SoftField extends StatelessWidget {
 }
 
 // ----------------------------------------------------------------------------
-// DIALOG (kartu putih / gelap, semua sudut membulat, tidak terpotong keyboard)
+// DIALOG (kartu putih, semua sudut membulat, tidak terpotong keyboard)
 // ----------------------------------------------------------------------------
 Future<T?> showSoftDialog<T>(
   BuildContext context, {
@@ -456,8 +394,8 @@ Future<T?> showSoftDialog<T>(
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Tutup',
-    barrierColor: Colors.black.withValues(alpha: 0.45),
+    barrierLabel: AppStrings.t('close'),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (ctx, _, __) {
       return SafeArea(
@@ -503,20 +441,14 @@ class SoftDialogTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = _isDarkCtx(context);
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
         decoration: BoxDecoration(
-          color: isDark
-              ? _fillColor(context)
-              : AppColors.primer.withValues(alpha: 0.6),
+          color: AppColors.primer.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Text(
-          text,
-          style: softText(14.5, weight: FontWeight.w700, context: context),
-        ),
+        child: Text(text, style: softText(14.5, weight: FontWeight.w700)),
       ),
     );
   }
@@ -561,7 +493,7 @@ class SoftDialogActions extends StatelessWidget {
 Future<void> showSoftNotice(
   BuildContext context, {
   required String message,
-  String okLabel = 'Oke',
+  String? okLabel,
 }) {
   return showSoftDialog<void>(
     context,
@@ -571,10 +503,12 @@ Future<void> showSoftNotice(
         Text(
           message,
           textAlign: TextAlign.center,
-          style: softText(14, weight: FontWeight.w700, height: 1.4, context: ctx),
+          style: softText(14, weight: FontWeight.w700, height: 1.4),
         ),
         const SizedBox(height: 18),
-        SoftButton(label: okLabel, onPressed: () => Navigator.of(ctx).pop()),
+        SoftButton(
+            label: okLabel ?? AppStrings.t('ok'),
+            onPressed: () => Navigator.of(ctx).pop()),
       ],
     ),
   );
@@ -595,7 +529,7 @@ Future<bool> showSoftConfirm(
         Text(
           message,
           textAlign: TextAlign.center,
-          style: softText(14, weight: FontWeight.w700, height: 1.4, context: ctx),
+          style: softText(14, weight: FontWeight.w700, height: 1.4),
         ),
         const SizedBox(height: 18),
         Row(
@@ -622,7 +556,7 @@ Future<bool> showSoftConfirm(
   return result ?? false;
 }
 
-/// Snackbar melayang bergaya putih / gelap + border.
+/// Snackbar melayang bergaya putih + border biru.
 void showSoftSnack(BuildContext context, String message) {
   final messenger = ScaffoldMessenger.of(context);
   messenger
@@ -630,17 +564,17 @@ void showSoftSnack(BuildContext context, String message) {
     ..showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: _cardColor(context),
+        backgroundColor: AppColors.surface,
         elevation: 0,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: _borderColor(context), width: 1.2),
+          side: BorderSide(color: softBorder, width: 1.2),
         ),
         content: Text(
           message,
           textAlign: TextAlign.center,
-          style: softText(13, weight: FontWeight.w600, context: context),
+          style: softText(13, weight: FontWeight.w600),
         ),
       ),
     );

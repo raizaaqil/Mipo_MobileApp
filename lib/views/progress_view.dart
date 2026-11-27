@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/tap_scale.dart';
@@ -14,11 +15,11 @@ extension _StatusLabel on ProgressStatus {
   String get label {
     switch (this) {
       case ProgressStatus.todo:
-        return 'To Do';
+        return AppStrings.t('st_todo');
       case ProgressStatus.inProgress:
-        return 'In Progress';
+        return AppStrings.t('st_in_progress');
       case ProgressStatus.done:
-        return 'Done';
+        return AppStrings.t('st_done');
     }
   }
 }
@@ -79,10 +80,10 @@ Color _urgencyColor(_Urgency u) {
 
 String _deadlineLabel(DateTime deadline) {
   final days = _daysLeft(deadline);
-  if (days < 0) return 'Lewat ${-days} hari';
-  if (days == 0) return 'Hari ini';
-  if (days == 1) return 'Besok';
-  return 'H-$days';
+  if (days < 0) return AppStrings.t('days_ago', {'n': -days});
+  if (days == 0) return AppStrings.t('today');
+  if (days == 1) return AppStrings.t('tomorrow');
+  return AppStrings.t('deadline_h', {'n': days});
 }
 
 // ============================================================================
@@ -102,15 +103,15 @@ TextStyle _text(
   );
 }
 
-const _softBorder = Color(0xFFE3F1FF);
-const _fieldBg = Color(0xFFF3F8FE);
+Color get _softBorder => AppColors.softBorder;
+Color get _fieldBg => AppColors.softFill;
 
 /// Warna tabel utama (biru muda). Tab yang aktif memakai warna yang sama.
-final Color _tableColor =
-    Color.alphaBlend(AppColors.primer.withValues(alpha: 0.5), Colors.white);
+Color get _tableColor =>
+    Color.alphaBlend(AppColors.primer.withValues(alpha: 0.5), AppColors.surface);
 
 /// Warna bar "tambah tugas": sedikit lebih gelap dari tabel.
-final Color _addBarColor = Color.lerp(_tableColor, AppColors.tersier, 0.55)!;
+Color get _addBarColor => Color.lerp(_tableColor, AppColors.tersier, 0.55)!;
 
 List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.45}) {
   return [
@@ -122,12 +123,9 @@ List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.4
   ];
 }
 
-const _monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
+List<String> get _monthNames => AppStrings.monthNames;
 
-const _dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+List<String> get _dayNames => AppStrings.dayNames;
 
 String _fullDate(DateTime d) =>
     '${_dayNames[d.weekday - 1]}, ${d.day} ${_monthNames[d.month - 1]} ${d.year}';
@@ -206,7 +204,7 @@ class _ProgressViewState extends State<ProgressView> {
       t.status = to;
       _expandedId = null;
     });
-    _toast('Dipindahkan ke ${to.label}');
+    _toast(AppStrings.t('moved_to', {'s': to.label}));
   }
 
   Future<void> _confirmDelete(ProgressTask t) async {
@@ -216,7 +214,7 @@ class _ProgressViewState extends State<ProgressView> {
         _tasks.removeWhere((e) => e.id == t.id);
         _expandedId = null;
       });
-      _toast('Tugas dibuang');
+      _toast(AppStrings.t('task_discarded'));
     }
   }
 
@@ -227,7 +225,7 @@ class _ProgressViewState extends State<ProgressView> {
         _tasks.add(created);
         _expandedId = null;
       });
-      _toast('Tugas ditambahkan ke To Do');
+      _toast(AppStrings.t('task_added_todo'));
     }
   }
 
@@ -238,7 +236,7 @@ class _ProgressViewState extends State<ProgressView> {
     return showGeneralDialog<T>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Tutup',
+      barrierLabel: AppStrings.t('close'),
       barrierColor: Colors.black.withValues(alpha: 0.18),
       transitionDuration: const Duration(milliseconds: 240),
       pageBuilder: (context, _, __) => SafeArea(
@@ -276,7 +274,7 @@ class _ProgressViewState extends State<ProgressView> {
       SnackBar(
         content: Text(
           message,
-          style: _text(13, weight: FontWeight.w600, color: Colors.white),
+          style: _text(13, weight: FontWeight.w600, color: AppColors.onAccent),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.tersier,
@@ -294,7 +292,7 @@ class _ProgressViewState extends State<ProgressView> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.surface,
     body: SafeArea(
       bottom: false,
       child: Padding(
@@ -331,12 +329,12 @@ Widget build(BuildContext context) {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
                   boxShadow: _blueShadow(),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 18,
                   color: AppColors.tersier,
@@ -349,7 +347,7 @@ Widget build(BuildContext context) {
               padding: const EdgeInsets.symmetric(horizontal: 22),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(23),
                 border: Border.all(color: _softBorder, width: 1.2),
                 boxShadow: _blueShadow(),
@@ -357,13 +355,13 @@ Widget build(BuildContext context) {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.checklist_rounded,
                     size: 20,
                     color: AppColors.tersier,
                   ),
                   const SizedBox(width: 8),
-                  Text('Progress', style: _text(16, weight: FontWeight.w700)),
+                  Text(AppStrings.t('prog_title'), style: _text(16, weight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -417,7 +415,7 @@ Widget build(BuildContext context) {
               duration: const Duration(milliseconds: 260),
               curve: Curves.easeOutCubic,
               decoration: BoxDecoration(
-                color: active ? _tableColor : Colors.white,
+                color: active ? _tableColor : AppColors.surface,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
                 boxShadow:
@@ -454,7 +452,7 @@ Widget build(BuildContext context) {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 1),
                       decoration: BoxDecoration(
-                        color: active ? Colors.white : _tableColor,
+                        color: active ? AppColors.onAccent : _tableColor,
                         borderRadius: BorderRadius.circular(9),
                       ),
                       child: Text('$count',
@@ -573,11 +571,11 @@ Widget build(BuildContext context) {
   String _emptyText(ProgressStatus s) {
     switch (s) {
       case ProgressStatus.todo:
-        return 'Belum ada tugas. Tambahkan tugas barumu!';
+        return AppStrings.t('prog_empty_todo');
       case ProgressStatus.inProgress:
-        return 'Belum ada tugas yang sedang dikerjakan.';
+        return AppStrings.t('prog_empty_doing');
       case ProgressStatus.done:
-        return 'Belum ada tugas yang selesai.';
+        return AppStrings.t('prog_empty_done');
     }
   }
 
@@ -598,11 +596,11 @@ Widget build(BuildContext context) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.add_circle_outline_rounded, size: 22, color: Colors.white),
+          Icon(Icons.add_circle_outline_rounded, size: 22, color: AppColors.onAccent),
           const SizedBox(width: 8),
           Text(
-            'Tambah tugas baru',
-            style: _text(13.5, weight: FontWeight.w700, color: Colors.white),
+            AppStrings.t('prog_add_new'),
+            style: _text(13.5, weight: FontWeight.w700, color: AppColors.onAccent),
           ),
         ],
       ),
@@ -619,7 +617,7 @@ Widget build(BuildContext context) {
     final color = isDone
         ? AppColors.urgencyCalm
         : _urgencyColor(_urgencyOf(t.deadline));
-    final label = isDone ? 'Selesai' : _deadlineLabel(t.deadline);
+    final label = isDone ? AppStrings.t('prog_finished') : _deadlineLabel(t.deadline);
 
     return _FadeSlideIn(
       key: ValueKey(t.id),
@@ -632,7 +630,7 @@ Widget build(BuildContext context) {
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Stack(
@@ -766,7 +764,7 @@ Widget build(BuildContext context) {
           const SizedBox(height: 14),
           Center(
             child: Text(
-              'Pindahkan status ke',
+              AppStrings.t('prog_move_to'),
               style: _text(
                 11.5,
                 weight: FontWeight.w600,
@@ -778,7 +776,7 @@ Widget build(BuildContext context) {
           Center(
             child: _statusButton(
               icon: isTodo ? Icons.autorenew_rounded : Icons.undo_rounded,
-              label: isTodo ? 'In Progress' : 'To Do',
+              label: isTodo ? AppStrings.t('st_in_progress') : AppStrings.t('st_todo'),
               onTap: () => _move(
                 t,
                 isTodo ? ProgressStatus.inProgress : ProgressStatus.todo,
@@ -788,7 +786,7 @@ Widget build(BuildContext context) {
           const SizedBox(height: 10),
           Center(
             child: Text(
-              'Pengumpulan tugas dilakukan di halaman Pet',
+              AppStrings.t('prog_submit_note'),
               textAlign: TextAlign.center,
               style: _text(
                 10.5,
@@ -871,7 +869,7 @@ class _FloatingCard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 340),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 24, dy: 8, alpha: 0.6),
@@ -907,10 +905,10 @@ class _ConfirmDelete extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('Buang tugas ini?', style: _text(16, weight: FontWeight.w700)),
+          Text(AppStrings.t('prog_discard_q'), style: _text(16, weight: FontWeight.w700)),
           const SizedBox(height: 8),
           Text(
-            '"${task.title}" akan dihapus dan tidak dianggap selesai.',
+            AppStrings.t('prog_discard_msg', {'t': task.title}),
             textAlign: TextAlign.center,
             style: _text(12.5, color: AppColors.textDark.withValues(alpha: 0.7)),
           ),
@@ -925,11 +923,11 @@ class _ConfirmDelete extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: _softBorder, width: 1.4),
                     ),
-                    child: Text('Batal', style: _text(14, weight: FontWeight.w700)),
+                    child: Text(AppStrings.t('cancel_btn'), style: _text(14, weight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -946,8 +944,8 @@ class _ConfirmDelete extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      'Buang',
-                      style: _text(14, weight: FontWeight.w700, color: Colors.white),
+                      AppStrings.t('discard'),
+                      style: _text(14, weight: FontWeight.w700, color: AppColors.onAccent),
                     ),
                   ),
                 ),
@@ -993,9 +991,9 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
       lastDate: DateTime(now.year + 5),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.light(
+          colorScheme: Theme.of(ctx).colorScheme.copyWith(
             primary: AppColors.tersier,
-            onPrimary: Colors.white,
+            onPrimary: AppColors.onAccent,
             onSurface: AppColors.textDark,
           ),
         ),
@@ -1016,7 +1014,7 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         title: title,
         description: _descCtrl.text.trim().isEmpty
-            ? 'Belum ada keterangan.'
+            ? AppStrings.t('prog_no_desc')
             : _descCtrl.text.trim(),
         deadline: _deadline,
       ),
@@ -1040,7 +1038,7 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.tersier, width: 1.4),
+        borderSide: BorderSide(color: AppColors.tersier, width: 1.4),
       ),
     );
   }
@@ -1066,9 +1064,9 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tugas baru', style: _text(16, weight: FontWeight.w700)),
+          Text(AppStrings.t('prog_new_task'), style: _text(16, weight: FontWeight.w700)),
           const SizedBox(height: 14),
-          _label('Tag / nama tugas'),
+          _label(AppStrings.t('prog_tag_name')),
           TextField(
             controller: _titleCtrl,
             textCapitalization: TextCapitalization.sentences,
@@ -1076,7 +1074,7 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
             onChanged: (_) {
               if (_showError) setState(() => _showError = false);
             },
-            decoration: _decoration('Contoh: Laprak Animasi 3D'),
+            decoration: _decoration(AppStrings.t('prog_example')),
           ),
           AnimatedSize(
             duration: const Duration(milliseconds: 200),
@@ -1085,21 +1083,21 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
                 ? Padding(
                     padding: const EdgeInsets.only(top: 6, left: 4),
                     child: Text(
-                      'Nama tugas wajib diisi',
+                      AppStrings.t('prog_name_required'),
                       style: _text(11, color: AppColors.urgencyPanic),
                     ),
                   )
                 : const SizedBox(width: double.infinity),
           ),
           const SizedBox(height: 12),
-          _label('Keterangan'),
+          _label(AppStrings.t('prog_description')),
           TextField(
             controller: _descCtrl,
             minLines: 3,
             maxLines: 4,
             textCapitalization: TextCapitalization.sentences,
             style: _text(13),
-            decoration: _decoration('Tulis detail tugasnya'),
+            decoration: _decoration(AppStrings.t('prog_detail_hint')),
           ),
           const SizedBox(height: 12),
           _label('Deadline'),
@@ -1115,7 +1113,7 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_month_rounded,
                     size: 20,
                     color: AppColors.tersier,
@@ -1142,11 +1140,11 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: _softBorder, width: 1.4),
                     ),
-                    child: Text('Batal', style: _text(14, weight: FontWeight.w700)),
+                    child: Text(AppStrings.t('cancel_btn'), style: _text(14, weight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -1164,8 +1162,8 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
                       boxShadow: _blueShadow(blur: 10, dy: 3, alpha: 0.35),
                     ),
                     child: Text(
-                      'Simpan',
-                      style: _text(14, weight: FontWeight.w700, color: Colors.white),
+                      AppStrings.t('save_btn'),
+                      style: _text(14, weight: FontWeight.w700, color: AppColors.onAccent),
                     ),
                   ),
                 ),

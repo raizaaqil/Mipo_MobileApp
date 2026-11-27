@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/soft_ui.dart';
@@ -21,18 +22,18 @@ class _AboutViewState extends State<AboutView> {
 
   Future<void> _send() async {
     if (_feedback.text.trim().isEmpty) {
-      showSoftSnack(context, 'Tulis feedback dulu ya.');
+      showSoftSnack(context, AppStrings.t('about_write_first'));
       return;
     }
     FocusScope.of(context).unfocus();
-    await showSoftNotice(context, message: 'Feedback Send');
+    await showSoftNotice(context, message: AppStrings.t('about_sent'));
     if (mounted) _feedback.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return SoftPage(
-      title: 'About Application',
+      title: AppStrings.t('about_title'),
       child: Column(
         children: [
           SoftFadeIn(
@@ -51,11 +52,7 @@ class _AboutViewState extends State<AboutView> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'MiPO is an interactive productivity platform designed to help students '
-                    'manage their schedules, track daily tasks, and monitor their study '
-                    'progress in a fun way. Accompanied by an adaptive virtual mascot, MiPO '
-                    'makes time management routines feel lighter, more structured, and far '
-                    'from tedious.',
+                    AppStrings.t('about_desc'),
                     textAlign: TextAlign.center,
                     style: softText(12.5, height: 1.55),
                   ),
@@ -71,18 +68,18 @@ class _AboutViewState extends State<AboutView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Feedback', style: softText(14, weight: FontWeight.w700)),
+                  Text(AppStrings.t('about_feedback'), style: softText(14, weight: FontWeight.w700)),
                   const SizedBox(height: 12),
                   SoftField(
                     controller: _feedback,
-                    hint: 'Type Here...',
+                    hint: AppStrings.t('about_hint'),
                     minLines: 6,
                     maxLines: 10,
                     keyboardType: TextInputType.multiline,
                   ),
                   const SizedBox(height: 16),
                   SoftButton(
-                    label: 'Send Feedback',
+                    label: AppStrings.t('about_send'),
                     icon: Icons.send_rounded,
                     onPressed: _send,
                   ),

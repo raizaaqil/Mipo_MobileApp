@@ -560,7 +560,7 @@ void showMipoSnack(BuildContext context, String message, {bool error = false}) {
         content: Text(
           message,
           style: TextStyle(
-            color: error ? Colors.white : p.onAccent,
+            color: error ? AppColors.onAccent : p.onAccent,
             fontWeight: FontWeight.w700,
           ),
         ),

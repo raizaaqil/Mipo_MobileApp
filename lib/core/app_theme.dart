@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 import 'app_palette.dart';
 
 /// Transisi halaman: fade + geser naik sedikit. Ringan dan sama di semua halaman.
@@ -50,7 +49,7 @@ class AppTheme {
       fontFamily: 'Nunito',
       scaffoldBackgroundColor: p.pageBg,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primaryBlue,
+        seedColor: const Color(0xFF5B9EE1),
         brightness: brightness,
       ).copyWith(primary: p.accent, surface: p.surface),
       pageTransitionsTheme: _transitions,

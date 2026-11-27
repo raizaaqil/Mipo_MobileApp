@@ -26,8 +26,8 @@ class ProfileView extends StatelessWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 19, color: AppColors.tersier),
@@ -74,7 +74,7 @@ class ProfileView extends StatelessWidget {
                       'assets/images/mipo_biru.gif',
                       height: 130,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(
+                      errorBuilder: (_, __, ___) => Icon(
                         Icons.bubble_chart_rounded,
                         size: 90,
                         color: AppColors.tersier,
@@ -85,7 +85,7 @@ class ProfileView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: softBorder, width: 1.2),
                     ),

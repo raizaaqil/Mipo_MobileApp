@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/tap_scale.dart';
@@ -69,10 +70,10 @@ Color _urgencyColor(_Urgency u) {
 
 String _deadlineLabel(DateTime deadline) {
   final days = _daysLeft(deadline);
-  if (days < 0) return 'Lewat ${-days} hari';
-  if (days == 0) return 'Hari ini';
-  if (days == 1) return 'Besok';
-  return 'H-$days';
+  if (days < 0) return AppStrings.t('days_ago', {'n': -days});
+  if (days == 0) return AppStrings.t('today');
+  if (days == 1) return AppStrings.t('tomorrow');
+  return AppStrings.t('deadline_h', {'n': days});
 }
 
 // ============================================================================
@@ -92,8 +93,8 @@ TextStyle _text(
   );
 }
 
-const _softBorder = Color(0xFFE3F1FF);
-const _fieldBg = Color(0xFFF3F8FE);
+Color get _softBorder => AppColors.softBorder;
+Color get _fieldBg => AppColors.softFill;
 
 List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.45}) {
   return [
@@ -105,12 +106,9 @@ List<BoxShadow> _blueShadow({double blur = 16, double dy = 4, double alpha = 0.4
   ];
 }
 
-const _monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
+List<String> get _monthNames => AppStrings.monthNames;
 
-const _dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+List<String> get _dayNames => AppStrings.dayNames;
 
 String _fullDate(DateTime d) =>
     '${_dayNames[d.weekday - 1]}, ${d.day} ${_monthNames[d.month - 1]} ${d.year}';
@@ -226,18 +224,18 @@ class _VirtualPetViewState extends State<VirtualPetView> {
     if (_celebration != null) return _celebration!;
     switch (_mostUrgent) {
       case null:
-        return 'Semua beres! Mipo senang sekali, kamu hebat!';
+        return AppStrings.t('pet_msg_all');
       case _Urgency.panic:
         final n = _pending.where((e) => _urgencyOf(e.deadline) == _Urgency.panic).length;
         return n > 1
-            ? 'Ada $n yang deadline-nya hari ini atau sudah lewat. Yuk kumpulkan sekarang!'
-            : 'Ada yang deadline-nya hari ini atau sudah lewat. Yuk kumpulkan sekarang!';
+            ? AppStrings.t('pet_msg_panic_n', {'n': n})
+            : AppStrings.t('pet_msg_panic_1');
       case _Urgency.worry:
-        return 'Deadline-nya tinggal sebentar lagi, Mipo jadi cemas. Ayo mulai dikerjakan!';
+        return AppStrings.t('pet_msg_worry');
       case _Urgency.alert:
-        return 'Ada yang mulai mendekati deadline. Cicil pelan-pelan ya!';
+        return AppStrings.t('pet_msg_alert');
       case _Urgency.calm:
-        return 'Semuanya masih aman. Tetap semangat ya!';
+        return AppStrings.t('pet_msg_calm');
     }
   }
 
@@ -253,20 +251,20 @@ class _VirtualPetViewState extends State<VirtualPetView> {
   void _complete(TaskItem item, {required bool isTask}) {
     setState(() {
       (isTask ? _tasks : _activities).removeWhere((e) => e.id == item.id);
-      _celebration = 'Yay! "${item.title}" selesai. Mipo senang sekali!';
+      _celebration = AppStrings.t('pet_yay', {'t': item.title});
     });
     _celebrationTimer?.cancel();
     _celebrationTimer = Timer(const Duration(seconds: 5), () {
       if (mounted) setState(() => _celebration = null);
     });
-    _toast(isTask ? 'Tugas berhasil dikumpulkan' : 'Kegiatan berhasil diselesaikan');
+    _toast(isTask ? AppStrings.t('pet_task_submitted') : AppStrings.t('pet_act_done'));
   }
 
   void _remove(TaskItem item, {required bool isTask}) {
     setState(() {
       (isTask ? _tasks : _activities).removeWhere((e) => e.id == item.id);
     });
-    _toast(isTask ? 'Tugas dibuang' : 'Kegiatan dibuang');
+    _toast(isTask ? AppStrings.t('task_discarded') : AppStrings.t('pet_act_discarded'));
   }
 
   Future<void> _openDetail(TaskItem item, {required bool isTask}) async {
@@ -294,7 +292,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       if (!mounted) return;
       if (result != null) _complete(item, isTask: isTask);
     } catch (_) {
-      if (mounted) _toast('File tidak bisa dibuka');
+      if (mounted) _toast(AppStrings.t('pet_file_fail'));
     }
   }
 
@@ -303,7 +301,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       final cameras = await availableCameras();
       if (!mounted) return;
       if (cameras.isEmpty) {
-        _toast('Kamera tidak ditemukan');
+        _toast(AppStrings.t('pet_no_camera'));
         return;
       }
       final result = await Navigator.push<bool>(
@@ -313,7 +311,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       if (!mounted) return;
       if (result == true) _complete(item, isTask: isTask);
     } catch (_) {
-      if (mounted) _toast('Kamera tidak bisa dibuka');
+      if (mounted) _toast(AppStrings.t('pet_cam_fail'));
     }
   }
 
@@ -324,7 +322,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
     return showGeneralDialog<T>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Tutup',
+      barrierLabel: AppStrings.t('close'),
       barrierColor: Colors.black.withValues(alpha: 0.18),
       transitionDuration: const Duration(milliseconds: 240),
       pageBuilder: (context, _, __) => SafeArea(
@@ -356,7 +354,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       SnackBar(
         content: Text(
           message,
-          style: _text(13, weight: FontWeight.w600, color: Colors.white),
+          style: _text(13, weight: FontWeight.w600, color: AppColors.onAccent),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.tersier,
@@ -388,7 +386,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
     final panelMinHeight = media.size.height > used ? media.size.height - used : 0.0;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
@@ -419,12 +417,12 @@ class _VirtualPetViewState extends State<VirtualPetView> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: _softBorder, width: 1.2),
                   boxShadow: _blueShadow(),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 18,
                   color: AppColors.tersier,
@@ -460,7 +458,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
               margin: const EdgeInsets.symmetric(horizontal: 32),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: _accent, width: 1.6),
                 boxShadow: _blueShadow(blur: 12, dy: 3, alpha: 0.35),
@@ -491,7 +489,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
       constraints: BoxConstraints(minHeight: minHeight),
       padding: EdgeInsets.fromLTRB(16, 20, 16, 28 + bottomInset),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: _blueShadow(blur: 24, dy: -6, alpha: 0.55),
       ),
@@ -499,17 +497,17 @@ class _VirtualPetViewState extends State<VirtualPetView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _listCard(
-            title: 'Tugasmu',
+            title: AppStrings.t('home_tasks'),
             items: tasks,
             isTask: true,
-            emptyText: 'Semua tugas sudah selesai!',
+            emptyText: AppStrings.t('pet_tasks_empty'),
           ),
           const SizedBox(height: 16),
           _listCard(
-            title: 'Kegiatanmu',
+            title: AppStrings.t('home_activities'),
             items: activities,
             isTask: false,
-            emptyText: 'Semua kegiatan sudah selesai!',
+            emptyText: AppStrings.t('pet_acts_empty'),
           ),
         ],
       ),
@@ -538,7 +536,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text('${items.length}', style: _text(11, weight: FontWeight.w700)),
@@ -557,7 +555,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.check_circle_rounded,
                             size: 20,
                             color: AppColors.tersier,
@@ -607,7 +605,7 @@ class _VirtualPetViewState extends State<VirtualPetView> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(22, 10, 12, 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -682,7 +680,7 @@ class _FloatingCard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 340),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _softBorder, width: 1.2),
         boxShadow: _blueShadow(blur: 24, dy: 8, alpha: 0.6),
@@ -820,7 +818,7 @@ class _ItemDetail extends StatelessWidget {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              isTask ? 'Kumpulkan tugas dengan' : 'Selesaikan kegiatan dengan foto',
+              isTask ? AppStrings.t('pet_submit_with') : AppStrings.t('pet_finish_photo'),
               style: _text(
                 11.5,
                 weight: FontWeight.w600,
@@ -835,7 +833,7 @@ class _ItemDetail extends StatelessWidget {
               _actionButton(
                 context,
                 icon: Icons.camera_alt_outlined,
-                label: 'Foto',
+                label: AppStrings.t('pet_photo'),
                 action: _DetailAction.camera,
               ),
               if (isTask) ...[
@@ -843,7 +841,7 @@ class _ItemDetail extends StatelessWidget {
                 _actionButton(
                   context,
                   icon: Icons.folder_open_rounded,
-                  label: 'File',
+                  label: AppStrings.t('pet_file'),
                   action: _DetailAction.file,
                 ),
               ],
@@ -864,7 +862,6 @@ class _ConfirmDelete extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final noun = isTask ? 'tugas' : 'kegiatan';
     return _FloatingCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -883,10 +880,10 @@ class _ConfirmDelete extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('Buang $noun ini?', style: _text(16, weight: FontWeight.w700)),
+          Text(isTask ? AppStrings.t('pet_discard_task_q') : AppStrings.t('pet_discard_act_q'), style: _text(16, weight: FontWeight.w700)),
           const SizedBox(height: 8),
           Text(
-            '"${item.title}" akan dihapus dan tidak dianggap selesai.',
+            AppStrings.t('prog_discard_msg', {'t': item.title}),
             textAlign: TextAlign.center,
             style: _text(12.5, color: AppColors.textDark.withValues(alpha: 0.7)),
           ),
@@ -901,11 +898,11 @@ class _ConfirmDelete extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: _softBorder, width: 1.4),
                     ),
-                    child: Text('Batal', style: _text(14, weight: FontWeight.w700)),
+                    child: Text(AppStrings.t('cancel_btn'), style: _text(14, weight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -922,8 +919,8 @@ class _ConfirmDelete extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      'Buang',
-                      style: _text(14, weight: FontWeight.w700, color: Colors.white),
+                      AppStrings.t('discard'),
+                      style: _text(14, weight: FontWeight.w700, color: AppColors.onAccent),
                     ),
                   ),
                 ),
@@ -1011,7 +1008,7 @@ class _CameraScreenState extends State<CameraScreen> {
         width: 46,
         height: 46,
         decoration: BoxDecoration(
-          color: active ? AppColors.primer : Colors.white,
+          color: active ? AppColors.primer : AppColors.surface,
           shape: BoxShape.circle,
           border: Border.all(color: _softBorder, width: 1.2),
           boxShadow: _blueShadow(),
@@ -1024,7 +1021,7 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -1068,7 +1065,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(24),
                                     child: Text(
-                                      'Kamera tidak bisa dibuka. Cek izin kamera di perangkatmu.',
+                                      AppStrings.t('pet_cam_perm'),
                                       textAlign: TextAlign.center,
                                       style: _text(13, weight: FontWeight.w600),
                                     ),
@@ -1078,7 +1075,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               if (snapshot.connectionState == ConnectionState.done) {
                                 return CameraPreview(_controller);
                               }
-                              return const Center(
+                              return Center(
                                 child: CircularProgressIndicator(
                                   color: AppColors.tersier,
                                   strokeWidth: 3,
@@ -1103,20 +1100,20 @@ class _CameraScreenState extends State<CameraScreen> {
                   height: 76,
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.sekunder, width: 3),
                     boxShadow: _blueShadow(),
                   ),
                   child: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.tersier,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.camera_alt_outlined,
                       size: 30,
-                      color: Colors.white,
+                      color: AppColors.onAccent,
                     ),
                   ),
                 ),
@@ -1141,7 +1138,7 @@ class ImagePreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -1176,12 +1173,12 @@ class ImagePreviewScreen extends StatelessWidget {
                               if (snapshot.hasError) {
                                 return Center(
                                   child: Text(
-                                    'Foto tidak bisa ditampilkan',
+                                    AppStrings.t('pet_photo_fail'),
                                     style: _text(13, weight: FontWeight.w600),
                                   ),
                                 );
                               }
-                              return const Center(
+                              return Center(
                                 child: CircularProgressIndicator(
                                   color: AppColors.tersier,
                                   strokeWidth: 3,
@@ -1208,11 +1205,11 @@ class ImagePreviewScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(color: _softBorder, width: 1.4),
                         ),
-                        child: Text('Batal', style: _text(15, weight: FontWeight.w700)),
+                        child: Text(AppStrings.t('cancel_btn'), style: _text(15, weight: FontWeight.w700)),
                       ),
                     ),
                   ),
@@ -1231,8 +1228,8 @@ class ImagePreviewScreen extends StatelessWidget {
                           boxShadow: _blueShadow(blur: 12, dy: 4),
                         ),
                         child: Text(
-                          'Upload',
-                          style: _text(15, weight: FontWeight.w700, color: Colors.white),
+                          AppStrings.t('pet_upload'),
+                          style: _text(15, weight: FontWeight.w700, color: AppColors.onAccent),
                         ),
                       ),
                     ),

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../core/app_colors.dart';
 import '../widgets/tap_scale.dart';
+import '../services/mipo_api_service.dart';
 
 // ===========================================================
 // KONSTANTA & GAYA (sama dengan Home, Pet, dan Progress)
@@ -71,8 +72,9 @@ Widget _circleButton(IconData icon, VoidCallback onTap, {double iconSize = 20}) 
 class ScheduleItem {
   final String time;
   final String activity;
+  final Map<String, dynamic>? rawData;
 
-  const ScheduleItem(this.time, this.activity);
+  const ScheduleItem(this.time, this.activity, {this.rawData});
 }
 
 /// Satu rekomendasi susunan jadwal dari AI.
@@ -87,12 +89,14 @@ class _Message {
   final String text;
   final bool isUser;
   final List<ScheduleOption>? options;
+  final List<Map<String, dynamic>>? searchResults;
   int? acceptedIndex;
 
   _Message({
     required this.text,
     required this.isUser,
     this.options,
+    this.searchResults,
   });
 }
 
@@ -115,6 +119,7 @@ class _Chat {
 // ===========================================================
 
 class SmartAiView extends StatefulWidget {
+  final int userId;
   final VoidCallback? onHomeTap;
 
   /// Dipanggil saat user menyetujui rekomendasi jadwal.
@@ -123,6 +128,7 @@ class SmartAiView extends StatefulWidget {
 
   const SmartAiView({
     super.key,
+    this.userId = 1,
     this.onHomeTap,
     this.onScheduleAccepted,
   });
@@ -175,28 +181,6 @@ class _SmartAiViewState extends State<SmartAiView> {
       ],
     );
   }
-
-  // Contoh rekomendasi. Ganti dengan respons backend nanti.
-  static List<ScheduleOption> get _sampleOptions => [
-    ScheduleOption(
-      title: AppStrings.t('ai_opt1_title'),
-      items: [
-        ScheduleItem('08.00', AppStrings.t('ai_opt1_a')),
-        ScheduleItem('10.30', AppStrings.t('ai_opt1_b')),
-        ScheduleItem('13.00', AppStrings.t('ai_opt1_c')),
-        ScheduleItem('19.30', AppStrings.t('ai_opt1_d')),
-      ],
-    ),
-    ScheduleOption(
-      title: AppStrings.t('ai_opt2_title'),
-      items: [
-        ScheduleItem('11.00', AppStrings.t('ai_opt2_a')),
-        ScheduleItem('13.30', AppStrings.t('ai_opt2_b')),
-        ScheduleItem('16.00', AppStrings.t('ai_opt2_c')),
-        ScheduleItem('16.30', AppStrings.t('ai_opt2_d')),
-      ],
-    ),
-  ];
 
   _Chat? get _activeChat {
     for (final c in _chats) {
@@ -297,6 +281,13 @@ class _SmartAiViewState extends State<SmartAiView> {
     return clean.length > 32 ? '${clean.substring(0, 32)}…' : clean;
   }
 
+  String _buildHistory(_Chat chat) {
+    return chat.messages.map((m) {
+      final role = m.isUser ? 'User' : 'Mipo AI';
+      return '$role: ${m.text}';
+    }).join('\n');
+  }
+
   void _scrollToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -333,14 +324,15 @@ class _SmartAiViewState extends State<SmartAiView> {
       chat = existing;
     }
 
+    final historySebelumPesan = _buildHistory(chat);
+
     setState(() {
       chat.messages.add(_Message(text: text, isUser: true));
       _isWaiting = true;
     });
     _scrollToBottom();
 
-    // TODO(backend): ganti dengan pemanggilan AI yang sebenarnya.
-    final reply = await _mockAiReply(text);
+    final reply = await _fetchAiReply(text, historySebelumPesan);
     if (!mounted) return;
 
     setState(() {
@@ -350,26 +342,60 @@ class _SmartAiViewState extends State<SmartAiView> {
     _scrollToBottom();
   }
 
-  Future<_Message> _mockAiReply(String prompt) async {
-    await Future.delayed(const Duration(milliseconds: 1100));
-    final p = prompt.toLowerCase();
-    const keys = [
-      'saran', 'rekomendasi', 'atur', 'susun', 'bagi', 'jadwalkan',
-      'suggest', 'recommend', 'schedule', 'plan', 'arrange', 'organize', 'split',
-    ];
-    final wantsAdvice = keys.any((k) => p.contains(k));
+  Future<_Message> _fetchAiReply(String prompt, String history) async {
+    try {
+      final res = await MipoApiService.askSmartAi(
+        userId: widget.userId,
+        message: prompt,
+        history: history,
+      );
 
-    if (wantsAdvice) {
+      final String replyText = res['reply'] ?? AppStrings.t('ai_reply_default');
+      final List<dynamic> rawSchedules = res['recommended_schedules'] ?? [];
+      final List<dynamic> rawSearch = res['search_results'] ?? [];
+
+      List<ScheduleOption>? options;
+      if (rawSchedules.isNotEmpty) {
+        final items = rawSchedules.map((s) {
+          final jamMulai = (s['jam_mulai'] ?? '08:00:00').toString();
+          final jamPendek = jamMulai.length >= 5
+              ? jamMulai.substring(0, 5).replaceAll(':', '.')
+              : jamMulai;
+          final judul = s['judul'] ?? 'Kegiatan';
+          final tgl = s['tanggal'] ?? '';
+          return ScheduleItem(
+            jamPendek,
+            '$judul ($tgl)',
+            rawData: Map<String, dynamic>.from(s),
+          );
+        }).toList();
+
+        options = [
+          ScheduleOption(
+            title: 'Rekomendasi Susunan Jadwal',
+            items: items,
+          ),
+        ];
+      }
+
+      List<Map<String, dynamic>>? searchResults;
+      if (rawSearch.isNotEmpty) {
+        searchResults =
+            rawSearch.map((e) => Map<String, dynamic>.from(e)).toList();
+      }
+
       return _Message(
-        text: AppStrings.t('ai_reply_options'),
+        text: replyText,
         isUser: false,
-        options: _sampleOptions,
+        options: options,
+        searchResults: searchResults,
+      );
+    } catch (e) {
+      return _Message(
+        text: 'Gagal terhubung ke server Mipo. Pastikan XAMPP menyala & satu Wi-Fi.',
+        isUser: false,
       );
     }
-    return _Message(
-      text: AppStrings.t('ai_reply_default'),
-      isUser: false,
-    );
   }
 
   Future<void> _selectOption(_Message msg, int index) async {
@@ -403,6 +429,20 @@ class _SmartAiViewState extends State<SmartAiView> {
     );
 
     if (ok != true || !mounted) return;
+
+    // Simpan jadwal yang disetujui ke tabel MySQL (schedules)
+    final schedulesToSave = option.items
+        .where((item) => item.rawData != null)
+        .map((item) => item.rawData!)
+        .toList();
+    if (schedulesToSave.isNotEmpty) {
+      await MipoApiService.approveAiSchedules(
+        userId: widget.userId,
+        schedules: schedulesToSave,
+      );
+    }
+
+    if (!mounted) return;
 
     setState(() {
       msg.acceptedIndex = index;
@@ -444,7 +484,6 @@ class _SmartAiViewState extends State<SmartAiView> {
     final sidebarWidth = min(320.0, width * 0.85);
 
     return Scaffold(
-      // Biru muda Home. Samakan dengan latar Home jika berbeda.
       backgroundColor: AppColors.baseBg,
       resizeToAvoidBottomInset: true,
       body: Stack(
@@ -526,7 +565,8 @@ class _SmartAiViewState extends State<SmartAiView> {
                     color: AppColors.tersier,
                   ),
                   const SizedBox(width: 8),
-                  Text(AppStrings.t('ai_title'), style: _t(size: 16, weight: FontWeight.w700)),
+                  Text(AppStrings.t('ai_title'),
+                      style: _t(size: 16, weight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -798,6 +838,52 @@ class _SmartAiViewState extends State<SmartAiView> {
                     width: screenWidth - 32,
                     child: _buildOptionCard(m, i),
                   ),
+              if (m.searchResults != null)
+                for (final item in m.searchResults!)
+                  Container(
+                    width: screenWidth - 32,
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: _softBorder, width: 1.2),
+                      boxShadow: _blueShadow(blur: 12, dy: 3, alpha: 0.3),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          item['tipe'] == 'Foto'
+                              ? Icons.image_rounded
+                              : item['tipe'] == 'File'
+                                  ? Icons.description_rounded
+                                  : Icons.task_alt_rounded,
+                          color: AppColors.tersier,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '[${item['tipe']}] ${item['judul']}',
+                                style: _t(size: 13.5, weight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                item['detail'] ?? '',
+                                style: _t(
+                                  size: 12,
+                                  color: AppColors.textDark.withValues(alpha: 0.75),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
             ],
           ),
         ),
@@ -1043,7 +1129,8 @@ class _SmartAiViewState extends State<SmartAiView> {
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.zero,
                     children: [
-                      _sectionTitle(AppStrings.t('ai_pinned', {'a': pinnedAll.length, 'b': _maxPinned})),
+                      _sectionTitle(AppStrings.t('ai_pinned',
+                          {'a': pinnedAll.length, 'b': _maxPinned})),
                       const SizedBox(height: 8),
                       if (pinned.isEmpty)
                         _emptyHint(AppStrings.t('ai_pinned_empty'))
